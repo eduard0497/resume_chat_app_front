@@ -47,7 +47,9 @@ function App() {
   return (
     <>
       {loading ? (
-        <h1>LOADING....</h1>
+        <div className="center_flex">
+          <h1>LOADING....</h1>
+        </div>
       ) : (
         <div>
           {isLoggedIn ? (
