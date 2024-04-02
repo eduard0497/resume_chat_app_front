@@ -59,21 +59,26 @@ function Dashboard({ changeLoginState }) {
 
   //
   useEffect(() => {
-    const newSocket = io.connect(process.env.REACT_APP_BACK_END, {
-      query: {
-        token: sessionStorage.getItem("token"),
-      },
-    });
+    let newSocket;
+    try {
+      newSocket = io.connect(process.env.REACT_APP_BACK_END, {
+        query: {
+          token: sessionStorage.getItem("token"),
+        },
+      });
 
-    newSocket.on("error", (data) => {
-      console.log(data);
-    });
+      newSocket.on("error", (data) => {
+        console.log(data);
+      });
 
-    newSocket.on("connection_established", (data) => {
-      console.log(data);
-    });
+      newSocket.on("connection_established", (data) => {
+        console.log(data);
+      });
 
-    setsocket(newSocket);
+      setsocket(newSocket);
+    } catch (error) {
+      console.log(newSocket);
+    }
 
     return () => {
       if (newSocket) newSocket.disconnect();
