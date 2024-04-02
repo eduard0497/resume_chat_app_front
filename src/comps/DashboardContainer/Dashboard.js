@@ -4,6 +4,7 @@ import io from "socket.io-client";
 function Dashboard({ changeLoginState }) {
   //
   const [socket, setsocket] = useState(null);
+  const [connectionEstablished, setconnectionEstablished] = useState(false);
   //
   const [content, setcontent] = useState("");
   const changeContent = (content) => {
@@ -31,7 +32,7 @@ function Dashboard({ changeLoginState }) {
     );
     const res = await req.json();
     if (!res.status) {
-      console.log(res.msg);
+      alert(res.msg);
     } else {
       updateSelectedConversation(res.data[0].id);
       setcontent("messages");
@@ -67,12 +68,21 @@ function Dashboard({ changeLoginState }) {
         },
       });
 
-      newSocket.on("error", (data) => {
-        console.log(data);
-      });
-
       newSocket.on("connection_established", (data) => {
         console.log(data);
+        setconnectionEstablished(true);
+      });
+
+      newSocket.on("error", (data) => {
+        alert(data);
+      });
+
+      newSocket.on("new_friend_request", (data) => {
+        alert(data);
+      });
+
+      newSocket.on("friend_request_accepted", (data) => {
+        alert(data);
       });
 
       setsocket(newSocket);
@@ -85,7 +95,18 @@ function Dashboard({ changeLoginState }) {
     };
   }, []);
 
-  if (!socket) return <p>Unable to establish a connection</p>;
+  if (!socket)
+    return (
+      <div>
+        <h1>Unable to establish a connection</h1>
+      </div>
+    );
+  if (!connectionEstablished)
+    return (
+      <div>
+        <h1>Waiting to establish a connection</h1>
+      </div>
+    );
   return (
     <div className="add_padding">
       <Navbar
@@ -699,7 +720,7 @@ const Settings = () => {
   );
 };
 
-//
+// Messages
 const Messages = ({
   selectedConversationID,
   updateSelectedConversation,
@@ -726,7 +747,6 @@ const Messages = ({
     }
   };
 
-  console.log(conversations);
   useEffect(() => {
     getConversations();
   }, []);
@@ -835,7 +855,7 @@ const SelectedConversation = ({
   useEffect(() => {
     socket.on("receive_message", (data) => {
       if (data.conversation_id !== selectedConversationID) {
-        console.log("text ekav vor es conversation-i mej chi");
+        alert("You have a new message");
         moveConversationToTop(data.conversation_id);
       } else {
         moveConversationToTop(data.conversation_id);
@@ -847,6 +867,13 @@ const SelectedConversation = ({
       socket.off("receive_message");
     };
   }, [selectedConversationID, moveConversationToTop, socket]);
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop =
+        messageContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const sendMessage = () => {
     if (!messageToSend) return;
@@ -880,12 +907,11 @@ const SelectedConversation = ({
     );
   };
 
-  useEffect(() => {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop =
-        messageContainerRef.current.scrollHeight;
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      sendMessage();
     }
-  }, [messages]);
+  };
 
   if (!selectedConversationID)
     return (
@@ -917,6 +943,7 @@ const SelectedConversation = ({
           placeholder="Message..."
           value={messageToSend}
           onChange={(e) => setmessageToSend(e.target.value)}
+          onKeyDown={handleKeyPress}
         />
         <button onClick={sendMessage}>Send</button>
       </div>

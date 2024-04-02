@@ -10,7 +10,10 @@ function Login({ handleLoading, changeLoginState }) {
   };
 
   const userLogin = async () => {
-    if (!username || !password) return;
+    if (!username || !password) {
+      alert("Either username or password were not provided");
+      return;
+    }
 
     handleLoading(true);
     const req = await fetch(`${process.env.REACT_APP_BACK_END}/user-login`, {
@@ -23,12 +26,18 @@ function Login({ handleLoading, changeLoginState }) {
     });
     const res = await req.json();
     if (!res.status) {
-      console.log(res.msg);
+      alert(res.msg);
       handleLoading(false);
     } else {
       sessionStorage.setItem("token", res.data);
       handleLoading(false);
       changeLoginState(true);
+    }
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      userLogin();
     }
   };
 
@@ -40,12 +49,14 @@ function Login({ handleLoading, changeLoginState }) {
         placeholder="Username"
         value={username}
         onChange={(e) => setusername(e.target.value)}
+        onKeyDown={handleKeyPress}
       />
       <input
         type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setpassword(e.target.value)}
+        onKeyDown={handleKeyPress}
       />
       <div className="row_space_around">
         <button onClick={clearInputs}>CLEAR</button>

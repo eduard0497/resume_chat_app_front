@@ -27,7 +27,7 @@ function App() {
       const res = await req.json();
       if (!res.status) {
         sessionStorage.removeItem("token");
-        console.log(res.msg);
+        alert(res.msg);
         setisLoggedIn(false);
         setloading(false);
       } else {
