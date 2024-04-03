@@ -15,39 +15,39 @@ function App() {
     setisLoggedIn(bool);
   };
 
-  const checkToken = async () => {
-    setloading(true);
-    if (sessionStorage.getItem("token")) {
-      const req = await fetch(`${process.env.REACT_APP_BACK_END}/check-token`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: sessionStorage.getItem("token"),
-        }),
-      });
-      const res = await req.json();
-      if (!res.status) {
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("username");
-        sessionStorage.removeItem("first_name");
-        sessionStorage.removeItem("last_name");
-        sessionStorage.removeItem("user_since");
-        setisLoggedIn(false);
-        setloading(false);
-        alert(res.msg);
-      } else {
-        setisLoggedIn(true);
-        setloading(false);
-      }
-    } else {
-      setisLoggedIn(false);
-      setloading(false);
-    }
-  };
+  // const checkToken = async () => {
+  //   setloading(true);
+  //   if (sessionStorage.getItem("token")) {
+  //     const req = await fetch(`${process.env.REACT_APP_BACK_END}/check-token`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         token: sessionStorage.getItem("token"),
+  //       }),
+  //     });
+  //     const res = await req.json();
+  //     if (!res.status) {
+  //       sessionStorage.removeItem("token");
+  //       sessionStorage.removeItem("username");
+  //       sessionStorage.removeItem("first_name");
+  //       sessionStorage.removeItem("last_name");
+  //       sessionStorage.removeItem("user_since");
+  //       setisLoggedIn(false);
+  //       setloading(false);
+  //       alert(res.msg);
+  //     } else {
+  //       setisLoggedIn(true);
+  //       setloading(false);
+  //     }
+  //   } else {
+  //     setisLoggedIn(false);
+  //     setloading(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    checkToken();
-  }, []);
+  // useEffect(() => {
+  //   checkToken();
+  // }, []);
 
   return (
     <>
