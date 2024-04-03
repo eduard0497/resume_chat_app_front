@@ -29,7 +29,11 @@ function Login({ handleLoading, changeLoginState }) {
       alert(res.msg);
       handleLoading(false);
     } else {
-      sessionStorage.setItem("token", res.data);
+      sessionStorage.setItem("token", res.token);
+      sessionStorage.setItem("username", res.userInfo.username);
+      sessionStorage.setItem("first_name", res.userInfo.first_name);
+      sessionStorage.setItem("last_name", res.userInfo.last_name);
+      sessionStorage.setItem("user_since", res.userInfo.user_since);
       handleLoading(false);
       changeLoginState(true);
     }
@@ -42,7 +46,7 @@ function Login({ handleLoading, changeLoginState }) {
   };
 
   return (
-    <div className="border add_padding col_gap">
+    <div className="col_gap border_radius_15 padding_20">
       <h1>Login</h1>
       <input
         type="text"

@@ -6,9 +6,27 @@ body {
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+}
+
 input {
   padding: 5px;
   border-radius: 5px;
+}
+
+textarea {
+  padding: 10px;
+  border-radius: 5px;
+  resize: none;
+  height: auto;
+  min-height: 50px;
+  width: 100%;
 }
 
 button {
@@ -17,9 +35,50 @@ button {
   border-radius: 5px;
 }
 
-/* generic css */
+.screen {
+  padding: 20px 20px 40px 20px;
+  height: 100%;
+}
+
+/* layout CSS */
 .border {
   border: 1px solid rgb(11, 0, 170);
+}
+
+.border_radius_5 {
+  border: 1px solid rgb(11, 0, 170);
+  border-radius: 5px;
+}
+
+.border_radius_10 {
+  border: 1px solid rgb(11, 0, 170);
+  border-radius: 10px;
+}
+
+.border_radius_15 {
+  border: 1px solid rgb(11, 0, 170);
+  border-radius: 15px;
+}
+
+.border_radius_20 {
+  border: 1px solid rgb(11, 0, 170);
+  border-radius: 20px;
+}
+
+.padding_5 {
+  padding: 5px;
+}
+
+.padding_10 {
+  padding: 10px;
+}
+
+.padding_15 {
+  padding: 15px;
+}
+
+.padding_20 {
+  padding: 20px;
 }
 
 .row_space_around {
@@ -31,9 +90,15 @@ button {
 
 .row_space_between {
   display: flex;
-  /* align-items: center; */
+  align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 15px;
+}
+
+.row_space_between_flex_start {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
 }
 
 .row_with_gap {
@@ -45,7 +110,7 @@ button {
 .row_with_wrap {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -71,10 +136,6 @@ button {
   margin-right: auto;
 }
 
-.add_padding {
-  padding: 15px;
-}
-
 .flex_03 {
   flex: 0.3;
 }
@@ -85,6 +146,14 @@ button {
 
 .flex_1 {
   flex: 1;
+}
+
+.height_90 {
+  height: 90%;
+}
+
+.height_95 {
+  height: 95%;
 }
 
 .height_100 {
@@ -106,15 +175,16 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  height: 80vh;
+  height: 100%;
   justify-content: space-between;
 }
 
 .messaging_container_messages {
   flex: 1;
-  border: 1px solid red;
+  border: 1px solid rgb(11, 0, 170);
   padding: 15px;
   overflow-y: auto;
+  border-radius: 5px;
 }
 
 .message {

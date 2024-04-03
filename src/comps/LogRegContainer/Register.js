@@ -66,7 +66,7 @@ function Register() {
   };
 
   return (
-    <div className="col_gap border add_padding">
+    <div className="col_gap border_radius_15 padding_20">
       <h1>Register</h1>
       <input
         type="text"
