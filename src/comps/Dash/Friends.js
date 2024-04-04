@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import MyContext from "../ContextProvider/ContextProvider";
 
-const Friends = ({ friendsTab, setfriendsTab, startMessaging }) => {
+function Friends() {
+  const { friendsTab, setfriendsTab } = useContext(MyContext);
+
   const [personToView, setpersonToView] = useState(null);
-
-  const changePersonToView = (person) => {
-    setpersonToView(person);
-  };
 
   const renderTabs = () => {
     let tmpArray = [
@@ -46,20 +45,15 @@ const Friends = ({ friendsTab, setfriendsTab, startMessaging }) => {
     switch (friendsTab) {
       case "":
         return null;
-      // (
-      //   <div className="center_flex height_100">
-      //     <h1>Pick a tab</h1>
-      //   </div>
-      // );
+
       case "search":
-        return <SearchPeople changePersonToView={changePersonToView} />;
+        return <SearchPeople setpersonToView={setpersonToView} />;
       case "friends":
         return (
           <FriendsList
-            startMessaging={startMessaging}
-            // switchToMessagesAndSpecificConversation={
-            //   switchToMessagesAndSpecificConversation
-            // }
+          // switchToMessagesAndSpecificConversation={
+          //   switchToMessagesAndSpecificConversation
+          // }
           />
         );
       case "my_requests":
@@ -89,13 +83,12 @@ const Friends = ({ friendsTab, setfriendsTab, startMessaging }) => {
       )}
     </div>
   );
-};
+}
 
 export default Friends;
 
-const FriendsList = (
-  { startMessaging } /* switchToMessagesAndSpecificConversation */
-) => {
+const FriendsList = () => {
+  const { setselectedConversationID, setmainTab } = useContext(MyContext);
   const [loading, setloading] = useState(false);
 
   const [currentFriends, setcurrentFriends] = useState([]);
@@ -142,6 +135,27 @@ const FriendsList = (
     }
   };
 
+  const startMessaging = async (personID) => {
+    const req = await fetch(
+      `${process.env.REACT_APP_BACK_END}/start-messaging-from-friends-list`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: sessionStorage.getItem("token"),
+          personID,
+        }),
+      }
+    );
+    const res = await req.json();
+    if (!res.status) {
+      alert(res.msg);
+    } else {
+      setselectedConversationID(res.data[0].id);
+      setmainTab("messages");
+    }
+  };
+
   useEffect(() => {
     loadFriends();
   }, []);
@@ -181,7 +195,7 @@ const FriendsList = (
   );
 };
 
-const SearchPeople = ({ changePersonToView }) => {
+const SearchPeople = ({ setpersonToView }) => {
   const [loading, setloading] = useState(false);
   const [usernameToSearch, setusernameToSearch] = useState("");
 
@@ -198,10 +212,10 @@ const SearchPeople = ({ changePersonToView }) => {
     });
     const res = await req.json();
     if (!res.data.length || !res.status) {
-      changePersonToView(null);
+      setpersonToView(null);
       setloading(false);
     } else {
-      changePersonToView(res.data[0]);
+      setpersonToView(res.data[0]);
       setloading(false);
     }
   };

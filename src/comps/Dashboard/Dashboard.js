@@ -7,9 +7,10 @@ import "./Dashboard.css";
 
 function Dashboard({ changeLoginState }) {
   const [loading, setloading] = useState(false);
-  //
+
   const [socket, setsocket] = useState(null);
   const [connectionEstablished, setconnectionEstablished] = useState(false);
+
   //
   const [content, setcontent] = useState();
   const changeContent = (content) => {
@@ -21,6 +22,9 @@ function Dashboard({ changeLoginState }) {
   const updateSelectedConversation = (id) => {
     setselectedConversationID(id);
   };
+
+  //
+  const [friendsTab, setfriendsTab] = useState("");
 
   //
   const startMessaging = async (personID) => {
@@ -47,7 +51,13 @@ function Dashboard({ changeLoginState }) {
   const pickContent = () => {
     switch (content) {
       case "friends":
-        return <Friends startMessaging={startMessaging} />;
+        return (
+          <Friends
+            friendsTab={friendsTab}
+            setfriendsTab={setfriendsTab}
+            startMessaging={startMessaging}
+          />
+        );
       case "messages":
         return (
           <Messages
@@ -133,6 +143,7 @@ function Dashboard({ changeLoginState }) {
       <Navbar
         changeLoginState={changeLoginState}
         changeContent={changeContent}
+        updateSelectedConversation={updateSelectedConversation}
       />
       <br />
       {pickContent()}
@@ -142,7 +153,11 @@ function Dashboard({ changeLoginState }) {
 
 export default Dashboard;
 
-const Navbar = ({ changeLoginState, changeContent }) => {
+const Navbar = ({
+  changeLoginState,
+  changeContent,
+  updateSelectedConversation,
+}) => {
   const logOut = () => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("username");
@@ -162,14 +177,28 @@ const Navbar = ({ changeLoginState, changeContent }) => {
         </h1>
       </div>
       <div className="row_with_gap">
-        <button onClick={() => changeContent("friends")}>Friends</button>
+        <button
+          onClick={() => {
+            changeContent("friends");
+            updateSelectedConversation(null);
+          }}
+        >
+          Friends
+        </button>
         <button onClick={() => changeContent("messages")}>Messages</button>
       </div>
 
       <div className="navbar_user_icon padding_10">
         <span>User Image</span>
         <div className="navbar_user_dropdown padding_15 border_radius_10">
-          <button onClick={() => changeContent("settings")}>Settings</button>
+          <button
+            onClick={() => {
+              changeContent("settings");
+              updateSelectedConversation(null);
+            }}
+          >
+            Settings
+          </button>
           <button onClick={logOut}>Log Out</button>
         </div>
       </div>

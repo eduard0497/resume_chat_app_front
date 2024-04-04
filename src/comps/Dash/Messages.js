@@ -1,10 +1,10 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
+import MyContext from "../ContextProvider/ContextProvider";
 
-const Messages = ({
-  selectedConversationID,
-  updateSelectedConversation,
-  socket,
-}) => {
+function Messages() {
+  // const { socket, selectedConversationID, setselectedConversationID } =
+  //   useContext(MyContext);
+
   const [conversations, setconversations] = useState([]);
 
   const getConversations = async () => {
@@ -49,27 +49,18 @@ const Messages = ({
 
   return (
     <div className="height_90 row_space_between_flex_start">
-      <Conversations
-        conversations={conversations}
-        selectedConversationID={selectedConversationID}
-        updateSelectedConversation={updateSelectedConversation}
-      />
-      <SelectedConversation
-        selectedConversationID={selectedConversationID}
-        moveConversationToTop={moveConversationToTop}
-        socket={socket}
-      />
+      <Conversations conversations={conversations} />
+      <SelectedConversation moveConversationToTop={moveConversationToTop} />
     </div>
   );
-};
+}
 
 export default Messages;
 
-const Conversations = ({
-  conversations,
-  selectedConversationID,
-  updateSelectedConversation,
-}) => {
+const Conversations = ({ conversations }) => {
+  const { selectedConversationID, setselectedConversationID } =
+    useContext(MyContext);
+
   return (
     <div className="border_radius_15 padding_15 flex_03 col_no_gap">
       {conversations.map((conversation) => {
@@ -82,7 +73,7 @@ const Conversations = ({
                 : ""
             }`}
             onClick={() =>
-              updateSelectedConversation(conversation.conversation_id)
+              setselectedConversationID(conversation.conversation_id)
             }
           >
             <h3>{conversation.first_name + " " + conversation.last_name}</h3>
@@ -94,11 +85,8 @@ const Conversations = ({
   );
 };
 
-const SelectedConversation = ({
-  selectedConversationID,
-  moveConversationToTop,
-  socket,
-}) => {
+const SelectedConversation = ({ moveConversationToTop }) => {
+  const { socket, selectedConversationID } = useContext(MyContext);
   //
   const [myID, setmyID] = useState(null);
   const [otherPartyID, setotherPartyID] = useState(null);
@@ -136,22 +124,6 @@ const SelectedConversation = ({
 
     getMessages();
   }, [selectedConversationID]);
-
-  useEffect(() => {
-    socket.on("receive_message", (data) => {
-      if (data.conversation_id !== selectedConversationID) {
-        alert("You have a new message");
-        moveConversationToTop(data.conversation_id);
-      } else {
-        moveConversationToTop(data.conversation_id);
-        setmessages((prevMessages) => [...prevMessages, data]);
-      }
-    });
-
-    return () => {
-      socket.off("receive_message");
-    };
-  }, [selectedConversationID, moveConversationToTop, socket]);
 
   useEffect(() => {
     if (messageContainerRef.current) {

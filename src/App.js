@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import LogRegContainer from "./comps/LogRegContainer/LogRegContainer";
-import Dashboard from "./comps/Dashboard/Dashboard";
-// import DashboardContainer from "./comps/DashboardContainer/DashboardContainer";
-// import Dashboard from "./comps/DashboardContainer/Dashboard";
+// import Dashboard from "./comps/Dashboard/Dashboard";
+import Dashboard from "./comps/Dash/Dashboard";
+import { ContextProvider } from "./comps/ContextProvider/ContextProvider";
 // import "./App.css";
 
 function App() {
@@ -58,8 +58,9 @@ function App() {
       ) : (
         <div className="screen">
           {isLoggedIn ? (
-            // <DashboardContainer changeLoginState={changeLoginState} />
-            <Dashboard changeLoginState={changeLoginState} />
+            <ContextProvider>
+              <Dashboard changeLoginState={changeLoginState} />
+            </ContextProvider>
           ) : (
             <LogRegContainer
               handleLoading={handleLoading}
