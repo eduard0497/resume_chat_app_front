@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import MyContext from "../ContextProvider/ContextProvider";
 
-const Friends = ({ friendsTab, setfriendsTab, startMessaging }) => {
+function Friends() {
+  const { friendsTab, setfriendsTab } = useContext(MyContext);
+
   const [personToView, setpersonToView] = useState(null);
-
-  const changePersonToView = (person) => {
-    setpersonToView(person);
-  };
 
   const renderTabs = () => {
     let tmpArray = [
@@ -46,20 +45,15 @@ const Friends = ({ friendsTab, setfriendsTab, startMessaging }) => {
     switch (friendsTab) {
       case "":
         return null;
-      // (
-      //   <div className="center_flex height_100">
-      //     <h1>Pick a tab</h1>
-      //   </div>
-      // );
+
       case "search":
-        return <SearchPeople changePersonToView={changePersonToView} />;
+        return <SearchPeople setpersonToView={setpersonToView} />;
       case "friends":
         return (
           <FriendsList
-            startMessaging={startMessaging}
-            // switchToMessagesAndSpecificConversation={
-            //   switchToMessagesAndSpecificConversation
-            // }
+          // switchToMessagesAndSpecificConversation={
+          //   switchToMessagesAndSpecificConversation
+          // }
           />
         );
       case "my_requests":
@@ -89,61 +83,45 @@ const Friends = ({ friendsTab, setfriendsTab, startMessaging }) => {
       )}
     </div>
   );
-};
+}
 
 export default Friends;
 
-const FriendsList = (
-  { startMessaging } /* switchToMessagesAndSpecificConversation */
-) => {
+const FriendsList = () => {
+  const {
+    setselectedConversationID,
+    setmainTab,
+    currentFriends,
+    loadCurrentFriends,
+    unfriend,
+  } = useContext(MyContext);
+  // eslint-disable-next-line
   const [loading, setloading] = useState(false);
 
-  const [currentFriends, setcurrentFriends] = useState([]);
-
-  const loadFriends = async () => {
-    setloading(true);
+  const startMessaging = async (personID) => {
     const req = await fetch(
-      `${process.env.REACT_APP_BACK_END}/load-current-friends`,
+      `${process.env.REACT_APP_BACK_END}/start-messaging-from-friends-list`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token: sessionStorage.getItem("token"),
+          personID,
         }),
       }
     );
     const res = await req.json();
     if (!res.status) {
-      console.log(res.msg);
-      setloading(false);
+      alert(res.msg);
     } else {
-      setcurrentFriends(res.data);
-      setloading(false);
-    }
-  };
-
-  const unfriend = async (id) => {
-    const req = await fetch(`${process.env.REACT_APP_BACK_END}/unfriend`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token: sessionStorage.getItem("token"),
-        friendship_id: id,
-      }),
-    });
-    const res = await req.json();
-    if (!res.status) {
-      console.log(res.msg);
-    } else {
-      let newCurrentFriends = currentFriends.filter(
-        (friend) => friend.friendship_id !== id
-      );
-      setcurrentFriends(newCurrentFriends);
+      setselectedConversationID(res.data[0].id);
+      setmainTab("messages");
     }
   };
 
   useEffect(() => {
-    loadFriends();
+    loadCurrentFriends();
+    // eslint-disable-next-line
   }, []);
 
   if (loading) return <div>Loading...</div>;
@@ -181,7 +159,7 @@ const FriendsList = (
   );
 };
 
-const SearchPeople = ({ changePersonToView }) => {
+const SearchPeople = ({ setpersonToView }) => {
   const [loading, setloading] = useState(false);
   const [usernameToSearch, setusernameToSearch] = useState("");
 
@@ -198,11 +176,17 @@ const SearchPeople = ({ changePersonToView }) => {
     });
     const res = await req.json();
     if (!res.data.length || !res.status) {
-      changePersonToView(null);
+      setpersonToView(null);
       setloading(false);
     } else {
-      changePersonToView(res.data[0]);
+      setpersonToView(res.data[0]);
       setloading(false);
+    }
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      search();
     }
   };
 
@@ -213,6 +197,7 @@ const SearchPeople = ({ changePersonToView }) => {
         placeholder="Username to search..."
         value={usernameToSearch}
         onChange={(e) => setusernameToSearch(e.target.value)}
+        onKeyDown={handleKeyPress}
       />
       {loading ? (
         <button>Loading...</button>
@@ -346,32 +331,19 @@ const CurrentPerson = ({ personToView }) => {
 };
 
 const MyRequests = () => {
-  const [requests, setrequests] = useState([]);
-
-  const getRequests = async () => {
-    const req = await fetch(
-      `${process.env.REACT_APP_BACK_END}/get-my-friend-requests`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: sessionStorage.getItem("token"),
-        }),
-      }
-    );
-    const res = await req.json();
-    setrequests(res.data);
-  };
+  const { mySentFriendRequests, getMySentFriendRequests } =
+    useContext(MyContext);
 
   useEffect(() => {
-    getRequests();
+    getMySentFriendRequests();
+    // eslint-disable-next-line
   }, []);
 
   return (
     <div className="row_with_gap">
-      {requests.map((request) => {
+      {mySentFriendRequests.map((request) => {
         return (
-          <div key={request.request_id} className="add_padding border">
+          <div key={request.request_id} className="padding_15 border_radius_15">
             <h2>{request.first_name + " " + request.last_name}</h2>
             <div className="row_space_between">
               <p>{request.username}</p>
@@ -386,22 +358,10 @@ const MyRequests = () => {
 };
 
 const PendingMyApproval = () => {
-  const [requests, setrequests] = useState([]);
-
-  const getRequests = async () => {
-    const req = await fetch(
-      `${process.env.REACT_APP_BACK_END}/get-pending-approval-friend-requests`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: sessionStorage.getItem("token"),
-        }),
-      }
-    );
-    const res = await req.json();
-    setrequests(res.data);
-  };
+  const {
+    myPendingApprovalFriendRequests,
+    getMyPendingApprovalFriendRequests,
+  } = useContext(MyContext);
 
   const acceptFriendRequest = async (requestID) => {
     const req = await fetch(
@@ -419,7 +379,7 @@ const PendingMyApproval = () => {
     if (!res.status) {
       console.log(res.msg);
     } else {
-      getRequests();
+      getMyPendingApprovalFriendRequests();
     }
   };
 
@@ -439,19 +399,20 @@ const PendingMyApproval = () => {
     if (!res.status) {
       console.log(res.msg);
     } else {
-      getRequests();
+      getMyPendingApprovalFriendRequests();
     }
   };
 
   useEffect(() => {
-    getRequests();
+    getMyPendingApprovalFriendRequests();
+    // eslint-disable-next-line
   }, []);
 
   return (
     <div className="row_with_gap">
-      {requests.map((request) => {
+      {myPendingApprovalFriendRequests.map((request) => {
         return (
-          <div key={request.request_id} className="add_padding border">
+          <div key={request.request_id} className="padding_15 border_radius_15">
             <h2>{request.first_name + " " + request.last_name}</h2>
             <div className="row_space_between">
               <p>{request.username}</p>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import LogRegContainer from "./comps/LogRegContainer/LogRegContainer";
-// import Dashboard from "./comps/Dashboard/Dashboard";
-import Dashboard from "./comps/Dash/Dashboard";
+import Dashboard from "./comps/Dashboard/Dashboard";
 import { ContextProvider } from "./comps/ContextProvider/ContextProvider";
 // import "./App.css";
 

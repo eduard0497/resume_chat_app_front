@@ -1,75 +1,28 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
+import MyContext from "../ContextProvider/ContextProvider";
 
-const Messages = ({
-  selectedConversationID,
-  updateSelectedConversation,
-  socket,
-}) => {
-  const [conversations, setconversations] = useState([]);
-
-  const getConversations = async () => {
-    const req = await fetch(
-      `${process.env.REACT_APP_BACK_END}/get-current-user-conversations`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: sessionStorage.getItem("token"),
-        }),
-      }
-    );
-    const res = await req.json();
-    if (!res.status) {
-      console.log(res.msg);
-    } else {
-      setconversations(res.data);
-    }
-  };
+function Messages() {
+  const { getConversations } = useContext(MyContext);
 
   useEffect(() => {
     getConversations();
+    // eslint-disable-next-line
   }, []);
 
-  const moveConversationToTop = (conversationID) => {
-    const copyArray = [...conversations];
-    const index = copyArray.findIndex(
-      (obj) => obj.conversation_id === conversationID
-    );
-
-    if (index === -1) {
-      return;
-    }
-
-    const objectToMove = copyArray.splice(index, 1)[0];
-
-    copyArray.unshift(objectToMove);
-
-    setconversations(copyArray);
-  };
-
   return (
-    <div className="height_90 row_space_between_flex_start">
-      <Conversations
-        conversations={conversations}
-        selectedConversationID={selectedConversationID}
-        updateSelectedConversation={updateSelectedConversation}
-      />
-      <SelectedConversation
-        selectedConversationID={selectedConversationID}
-        moveConversationToTop={moveConversationToTop}
-        socket={socket}
-      />
+    <div className="messages_container">
+      <Conversations />
+      <SelectedConversation />
     </div>
   );
-};
+}
 
 export default Messages;
 
-const Conversations = ({
-  conversations,
-  selectedConversationID,
-  updateSelectedConversation,
-}) => {
+const Conversations = () => {
+  const { conversations, selectedConversationID, setselectedConversationID } =
+    useContext(MyContext);
+
   return (
     <div className="border_radius_15 padding_15 flex_03 col_no_gap">
       {conversations.map((conversation) => {
@@ -82,11 +35,47 @@ const Conversations = ({
                 : ""
             }`}
             onClick={() =>
-              updateSelectedConversation(conversation.conversation_id)
+              setselectedConversationID(conversation.conversation_id)
             }
           >
             <h3>{conversation.first_name + " " + conversation.last_name}</h3>
-            <p>{conversation.username}</p>
+            {selectedConversationID !== conversation.conversation_id ? (
+              <>
+                {conversation.last_message_sender_id !==
+                conversation.user_id ? (
+                  <div>
+                    <p>You: {conversation.last_message}</p>
+                  </div>
+                ) : (
+                  <div className="row_space_between">
+                    <p>{conversation.last_message}</p>
+                    <p>
+                      {new Date(
+                        conversation.last_message_time
+                      ).toLocaleDateString()}
+                    </p>
+                    {!conversation.last_message_is_read ? (
+                      <span>new message blink</span>
+                    ) : null}
+                  </div>
+                )}
+
+                {/*  */}
+                {/* {conversation.last_message_sender_id === conversation.user_id &&
+                !conversation.last_message_is_read ? (
+                  <div className="row_space_between">
+                    <p>{conversation.last_message}</p>
+                    <p>
+                      {new Date(
+                        conversation.last_message_time
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                ) : null} */}
+              </>
+            ) : null}
+
+            {/* <p>{conversation.username}</p> */}
           </div>
         );
       })}
@@ -94,17 +83,20 @@ const Conversations = ({
   );
 };
 
-const SelectedConversation = ({
-  selectedConversationID,
-  moveConversationToTop,
-  socket,
-}) => {
+const SelectedConversation = () => {
+  const {
+    socket,
+    selectedConversationID,
+    moveConversationToTop,
+    messages,
+    setmessages,
+  } = useContext(MyContext);
+  const [sendButtonLoading, setsendButtonLoading] = useState(false);
+
   //
   const [myID, setmyID] = useState(null);
   const [otherPartyID, setotherPartyID] = useState(null);
-  const [messages, setmessages] = useState([]);
   const [messageToSend, setmessageToSend] = useState("");
-  //
   const messageContainerRef = useRef(null);
 
   useEffect(() => {
@@ -135,30 +127,15 @@ const SelectedConversation = ({
     };
 
     getMessages();
+    // eslint-disable-next-line
   }, [selectedConversationID]);
-
-  useEffect(() => {
-    socket.on("receive_message", (data) => {
-      if (data.conversation_id !== selectedConversationID) {
-        alert("You have a new message");
-        moveConversationToTop(data.conversation_id);
-      } else {
-        moveConversationToTop(data.conversation_id);
-        setmessages((prevMessages) => [...prevMessages, data]);
-      }
-    });
-
-    return () => {
-      socket.off("receive_message");
-    };
-  }, [selectedConversationID, moveConversationToTop, socket]);
 
   useEffect(() => {
     if (messageContainerRef.current) {
       messageContainerRef.current.scrollTop =
         messageContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, setmessages, socket]);
 
   const sendMessage = () => {
     if (!messageToSend) return;
@@ -166,6 +143,7 @@ const SelectedConversation = ({
       alert("Message too long");
       return;
     }
+    setsendButtonLoading(true);
 
     socket.emit(
       "send_message",
@@ -178,8 +156,8 @@ const SelectedConversation = ({
       (res) => {
         if (!res.status) {
           console.log(res.msg);
+          setsendButtonLoading(false);
         } else {
-          console.log(res.msg);
           let newMessages = [...messages];
           newMessages.push({
             id: messages.length > 0 ? messages[messages.length - 1].id + 1 : 1,
@@ -192,6 +170,7 @@ const SelectedConversation = ({
           moveConversationToTop(selectedConversationID);
           setmessageToSend("");
           setmessages(newMessages);
+          setsendButtonLoading(false);
         }
       }
     );
@@ -229,15 +208,27 @@ const SelectedConversation = ({
       <div className="messaging_container_messages" ref={messageContainerRef}>
         {messages.map((message) => {
           return (
-            <p
+            <div
               key={message.id}
               className={`message ${
                 message.sender_id === myID ? "sent" : "received"
               }`}
             >
-              {message.message_content}
-              <span>{new Date(message.sent_at).toLocaleTimeString()}</span>
-            </p>
+              <p>{message.message_content}</p>
+              <div className="messaging_container_messages_details">
+                <p>
+                  {message.sender_id !== otherPartyID ? (
+                    <>{message.is_read ? "read" : "Not Read"}</>
+                  ) : null}
+                </p>
+                <p>
+                  {new Date(message.sent_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+            </div>
           );
         })}
       </div>
@@ -248,8 +239,11 @@ const SelectedConversation = ({
           onChange={(e) => setmessageToSend(e.target.value)}
           onKeyDown={handleKeyPress}
         ></textarea>
-
-        <button onClick={sendMessage}>Send</button>
+        {sendButtonLoading ? (
+          <button>Loading...</button>
+        ) : (
+          <button onClick={sendMessage}>Send</button>
+        )}
       </div>
     </div>
   );

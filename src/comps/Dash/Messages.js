@@ -2,10 +2,10 @@ import React, { useRef, useState, useEffect, useContext } from "react";
 import MyContext from "../ContextProvider/ContextProvider";
 
 function Messages() {
-  // const { socket, selectedConversationID, setselectedConversationID } =
-  //   useContext(MyContext);
+  const { socket, selectedConversationID } = useContext(MyContext);
 
   const [conversations, setconversations] = useState([]);
+  console.log(conversations);
 
   const getConversations = async () => {
     const req = await fetch(
@@ -30,6 +30,23 @@ function Messages() {
     getConversations();
   }, []);
 
+  // const markAllMessagesOfConversationAsRead = (conversationID) => {};
+
+  useEffect(() => {
+    socket.on("messages_have_been_read", (data) => {
+      let conversationsCopy = conversations.map((conversation) => {
+        if (conversation["conversation_id"] === data.conversation_id) {
+          return {
+            ...conversation,
+            last_message_is_read: true,
+          };
+        }
+        return conversation;
+      });
+      setconversations(conversationsCopy);
+    });
+  }, [socket, selectedConversationID, conversations]);
+
   const moveConversationToTop = (conversationID) => {
     const copyArray = [...conversations];
     const index = copyArray.findIndex(
@@ -48,7 +65,7 @@ function Messages() {
   };
 
   return (
-    <div className="height_90 row_space_between_flex_start">
+    <div className="height_90 row_space_between_flex_start flex_1">
       <Conversations conversations={conversations} />
       <SelectedConversation moveConversationToTop={moveConversationToTop} />
     </div>
@@ -77,7 +94,43 @@ const Conversations = ({ conversations }) => {
             }
           >
             <h3>{conversation.first_name + " " + conversation.last_name}</h3>
-            <p>{conversation.username}</p>
+            {selectedConversationID !== conversation.conversation_id ? (
+              <>
+                {conversation.last_message_sender_id !==
+                conversation.user_id ? (
+                  <div>
+                    <p>You: {conversation.last_message}</p>
+                  </div>
+                ) : (
+                  <div className="row_space_between">
+                    <p>{conversation.last_message}</p>
+                    <p>
+                      {new Date(
+                        conversation.last_message_time
+                      ).toLocaleDateString()}
+                    </p>
+                    {!conversation.last_message_is_read ? (
+                      <span>new message blink</span>
+                    ) : null}
+                  </div>
+                )}
+
+                {/*  */}
+                {/* {conversation.last_message_sender_id === conversation.user_id &&
+                !conversation.last_message_is_read ? (
+                  <div className="row_space_between">
+                    <p>{conversation.last_message}</p>
+                    <p>
+                      {new Date(
+                        conversation.last_message_time
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                ) : null} */}
+              </>
+            ) : null}
+
+            {/* <p>{conversation.username}</p> */}
           </div>
         );
       })}
@@ -201,15 +254,27 @@ const SelectedConversation = ({ moveConversationToTop }) => {
       <div className="messaging_container_messages" ref={messageContainerRef}>
         {messages.map((message) => {
           return (
-            <p
+            <div
               key={message.id}
               className={`message ${
                 message.sender_id === myID ? "sent" : "received"
               }`}
             >
-              {message.message_content}
-              <span>{new Date(message.sent_at).toLocaleTimeString()}</span>
-            </p>
+              <p>{message.message_content}</p>
+              <div className="messaging_container_messages_details">
+                <p>
+                  {message.sender_id !== otherPartyID ? (
+                    <>{message.is_read ? "read" : "Not Read"}</>
+                  ) : null}
+                </p>
+                <p>
+                  {new Date(message.sent_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+            </div>
           );
         })}
       </div>

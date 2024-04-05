@@ -61,7 +61,6 @@ function Dashboard({ changeLoginState }) {
     }
 
     const handleConnectionEstablished = (data) => {
-      console.log(data);
       setconnectionEstablished(true);
     };
 
@@ -129,13 +128,12 @@ function Dashboard({ changeLoginState }) {
   }
 
   return (
-    <div className="height_100">
+    <div className="dashboard_container">
       <Navbar
         changeLoginState={changeLoginState}
         setmainTab={setmainTab}
         setselectedConversationID={setselectedConversationID}
       />
-      <br />
       {pickmainTab()}
     </div>
   );

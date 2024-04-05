@@ -1,71 +1,32 @@
-import React, { useState, useEffect } from "react";
-import Messages from "./DashboardTabs/Messages";
-import Friends from "./DashboardTabs/Friends";
-import Settings from "./DashboardTabs/Settings";
+import React, { useState, useEffect, useContext } from "react";
+import MyContext from "../ContextProvider/ContextProvider";
+import Settings from "./Settings";
+import Friends from "./Friends";
+import Messages from "./Messages";
 import io from "socket.io-client";
 import "./Dashboard.css";
 
 function Dashboard({ changeLoginState }) {
-  const [loading, setloading] = useState(false);
+  const {
+    socket,
+    setsocket,
+    selectedConversationID,
+    setselectedConversationID,
+    mainTab,
+    setmainTab,
+    messages,
+    setmessages,
+  } = useContext(MyContext);
 
-  const [socket, setsocket] = useState(null);
+  const [loading, setloading] = useState(false);
   const [connectionEstablished, setconnectionEstablished] = useState(false);
 
-  //
-  const [content, setcontent] = useState();
-  const changeContent = (content) => {
-    setcontent(content);
-  };
-
-  //
-  const [selectedConversationID, setselectedConversationID] = useState(null);
-  const updateSelectedConversation = (id) => {
-    setselectedConversationID(id);
-  };
-
-  //
-  const [friendsTab, setfriendsTab] = useState("");
-
-  //
-  const startMessaging = async (personID) => {
-    const req = await fetch(
-      `${process.env.REACT_APP_BACK_END}/start-messaging-from-friends-list`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: sessionStorage.getItem("token"),
-          personID,
-        }),
-      }
-    );
-    const res = await req.json();
-    if (!res.status) {
-      alert(res.msg);
-    } else {
-      updateSelectedConversation(res.data[0].id);
-      setcontent("messages");
-    }
-  };
-
-  const pickContent = () => {
-    switch (content) {
+  const pickmainTab = () => {
+    switch (mainTab) {
       case "friends":
-        return (
-          <Friends
-            friendsTab={friendsTab}
-            setfriendsTab={setfriendsTab}
-            startMessaging={startMessaging}
-          />
-        );
+        return <Friends />;
       case "messages":
-        return (
-          <Messages
-            socket={socket}
-            selectedConversationID={selectedConversationID}
-            updateSelectedConversation={updateSelectedConversation}
-          />
-        );
+        return <Messages />;
       case "settings":
         return <Settings />;
       default:
@@ -77,33 +38,13 @@ function Dashboard({ changeLoginState }) {
     let newSocket;
     try {
       setloading(true);
-
       newSocket = io.connect(process.env.REACT_APP_BACK_END, {
         query: {
           token: sessionStorage.getItem("token"),
         },
       });
-
-      newSocket.on("connection_established", (data) => {
-        console.log(data);
-        setconnectionEstablished(true);
-      });
-
-      newSocket.on("error", (data) => {
-        alert(data);
-      });
-
-      newSocket.on("new_friend_request", (data) => {
-        alert(data);
-      });
-
-      newSocket.on("friend_request_accepted", (data) => {
-        alert(data);
-      });
-
       setsocket(newSocket);
     } catch (error) {
-      console.log(newSocket);
       console.log(error);
     } finally {
       setloading(false);
@@ -112,7 +53,109 @@ function Dashboard({ changeLoginState }) {
     return () => {
       if (newSocket) newSocket.disconnect();
     };
+    // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+
+    const handleConnectionEstablished = (data) => {
+      setconnectionEstablished(true);
+    };
+
+    const handleError = (data) => {
+      alert(data);
+    };
+
+    const handleNewFriendRequest = (data) => {
+      alert(data);
+    };
+
+    const handleFriendRequestAccepted = (data) => {
+      alert(data);
+    };
+
+    const handleReceiveMessage = ({ message_details }) => {
+      if (mainTab !== "messages") {
+        alert(`New Message ${message_details.message_content}`);
+      } else {
+        if (selectedConversationID !== message_details.conversation_id) {
+          alert(`New Message ${message_details.message_content}`);
+        } else {
+          socket.emit("i_read_the_message", { message_details });
+          //
+          let copyOfMessages = [...messages];
+          copyOfMessages.push(message_details);
+          setmessages(copyOfMessages);
+        }
+      }
+    };
+
+    const handleOtherPartyReadMesssage = ({ message_details }) => {
+      if (mainTab !== "messages") {
+        alert(`New Message ${message_details.message_content}`);
+      } else {
+        if (selectedConversationID !== message_details.conversation_id) {
+          console.log(`New Message ${message_details.message_content}`);
+        } else {
+          let copyOfMessages = [...messages];
+          let index = copyOfMessages.findIndex(
+            (message) => message.id === message_details.id
+          );
+          copyOfMessages[index] = message_details;
+          setmessages(copyOfMessages);
+        }
+      }
+    };
+
+    const handleMessagesHaveBeenReadByOtherParty = ({ conversation_id }) => {
+      if (mainTab !== "messages") {
+        console.log(
+          `All messages at conversation ${conversation_id} have been read`
+        );
+        // alert(`New Message ${message_details.message_content}`);
+      } else {
+        if (selectedConversationID !== conversation_id) {
+          console.log(
+            `All messages at conversation ${conversation_id} have been read`
+          );
+        } else {
+          let copyOfMessages = [...messages];
+
+          for (let i = 0; i < copyOfMessages.length; i++) {
+            copyOfMessages[i].is_read = true;
+          }
+          setmessages(copyOfMessages);
+        }
+      }
+    };
+
+    socket.on("connection_established", handleConnectionEstablished);
+    socket.on("error", handleError);
+    socket.on("new_friend_request", handleNewFriendRequest);
+    socket.on("friend_request_accepted", handleFriendRequestAccepted);
+    socket.on("receive_message", handleReceiveMessage);
+    socket.on("other_party_read_message", handleOtherPartyReadMesssage);
+    socket.on(
+      "messages_have_been_read",
+      handleMessagesHaveBeenReadByOtherParty
+    );
+
+    return () => {
+      socket.off("connection_established", handleConnectionEstablished);
+      socket.off("error", handleError);
+      socket.off("new_friend_request", handleNewFriendRequest);
+      socket.off("friend_request_accepted", handleFriendRequestAccepted);
+      socket.off("receive_message", handleReceiveMessage);
+      socket.off("other_party_read_message", handleOtherPartyReadMesssage);
+      socket.off(
+        "messages_have_been_read",
+        handleMessagesHaveBeenReadByOtherParty
+      );
+    };
+  }, [socket, mainTab, selectedConversationID, messages, setmessages]);
 
   if (!socket) {
     return (
@@ -139,14 +182,13 @@ function Dashboard({ changeLoginState }) {
   }
 
   return (
-    <div className="height_100">
+    <div className="dashboard_container">
       <Navbar
         changeLoginState={changeLoginState}
-        changeContent={changeContent}
-        updateSelectedConversation={updateSelectedConversation}
+        setmainTab={setmainTab}
+        setselectedConversationID={setselectedConversationID}
       />
-      <br />
-      {pickContent()}
+      {pickmainTab()}
     </div>
   );
 }
@@ -155,8 +197,8 @@ export default Dashboard;
 
 const Navbar = ({
   changeLoginState,
-  changeContent,
-  updateSelectedConversation,
+  setmainTab,
+  setselectedConversationID,
 }) => {
   const logOut = () => {
     sessionStorage.removeItem("token");
@@ -179,13 +221,13 @@ const Navbar = ({
       <div className="row_with_gap">
         <button
           onClick={() => {
-            changeContent("friends");
-            updateSelectedConversation(null);
+            setmainTab("friends");
+            setselectedConversationID(null);
           }}
         >
           Friends
         </button>
-        <button onClick={() => changeContent("messages")}>Messages</button>
+        <button onClick={() => setmainTab("messages")}>Messages</button>
       </div>
 
       <div className="navbar_user_icon padding_10">
@@ -193,8 +235,8 @@ const Navbar = ({
         <div className="navbar_user_dropdown padding_15 border_radius_10">
           <button
             onClick={() => {
-              changeContent("settings");
-              updateSelectedConversation(null);
+              setmainTab("settings");
+              setselectedConversationID(null);
             }}
           >
             Settings
