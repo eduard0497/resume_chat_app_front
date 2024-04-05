@@ -241,7 +241,7 @@ const Navbar = ({
           >
             Settings
           </button>
-          <button onClick={logOut}>Log Out</button>
+          <button onClick={logOut}>Log_Out</button>
         </div>
       </div>
     </div>
