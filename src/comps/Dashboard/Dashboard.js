@@ -10,6 +10,10 @@ function Dashboard({ changeLoginState }) {
   const {
     socket,
     setsocket,
+    updateConversationTemporaryMessages,
+    markLastTempMessageInConversationsRead,
+    // allMessagesReadByOtherParty,
+    conversations,
     selectedConversationID,
     setselectedConversationID,
     mainTab,
@@ -81,11 +85,15 @@ function Dashboard({ changeLoginState }) {
       if (mainTab !== "messages") {
         alert(`New Message ${message_details.message_content}`);
       } else {
-        if (selectedConversationID !== message_details.conversation_id) {
-          alert(`New Message ${message_details.message_content}`);
-        } else {
+        updateConversationTemporaryMessages(message_details);
+
+        //
+        if (selectedConversationID === message_details.conversation_id) {
+          markLastTempMessageInConversationsRead(
+            message_details.conversation_id
+          );
           socket.emit("i_read_the_message", { message_details });
-          //
+
           let copyOfMessages = [...messages];
           copyOfMessages.push(message_details);
           setmessages(copyOfMessages);
@@ -122,6 +130,7 @@ function Dashboard({ changeLoginState }) {
             `All messages at conversation ${conversation_id} have been read`
           );
         } else {
+          // allMessagesReadByOtherParty(conversation_id);
           let copyOfMessages = [...messages];
 
           for (let i = 0; i < copyOfMessages.length; i++) {
@@ -155,7 +164,17 @@ function Dashboard({ changeLoginState }) {
         handleMessagesHaveBeenReadByOtherParty
       );
     };
-  }, [socket, mainTab, selectedConversationID, messages, setmessages]);
+  }, [
+    socket,
+    mainTab,
+    selectedConversationID,
+    conversations,
+    messages,
+    setmessages,
+    // allMessagesReadByOtherParty,
+    updateConversationTemporaryMessages,
+    markLastTempMessageInConversationsRead,
+  ]);
 
   if (!socket) {
     return (
@@ -231,7 +250,11 @@ const Navbar = ({
       </div>
 
       <div className="navbar_user_icon padding_10">
-        <span>User Image</span>
+        <img
+          src="./default_profile_photo.jpg"
+          alt="profile"
+          className="profile_photo"
+        />
         <div className="navbar_user_dropdown padding_15 border_radius_10">
           <button
             onClick={() => {

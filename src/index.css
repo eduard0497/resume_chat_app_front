@@ -1,3 +1,12 @@
+:root {
+  --color_navy: #7289da;
+  --color_white: #ffffff;
+  --color_silver: #99aab5;
+  --color_dark: #424549;
+  --color_darker: #282b30;
+  --color_darkest: #1e2124;
+}
+
 *,
 html,
 body {
@@ -154,6 +163,10 @@ button {
   flex-grow: 1;
 }
 
+.width_400 {
+  width: 400px;
+}
+
 .height_90 {
   min-height: 90%;
 }
@@ -227,4 +240,11 @@ button {
 
 .received {
   background-color: #e9e9e9;
+}
+
+.profile_photo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
 }

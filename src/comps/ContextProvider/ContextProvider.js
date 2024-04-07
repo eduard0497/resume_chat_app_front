@@ -104,6 +104,61 @@ export const ContextProvider = ({ children }) => {
       setconversations(res.data);
     }
   };
+
+  const updateSelectedConversationMessagesAsRead_Select_Conversation = (
+    conversationID
+  ) => {
+    let copyOfConversations = [...conversations];
+    let foundObject = copyOfConversations.find(
+      (obj) => obj.conversation_id === conversationID
+    );
+    if (foundObject) {
+      foundObject.messages[foundObject.messages.length - 1].is_read = true;
+      setconversations(copyOfConversations);
+      setselectedConversationID(conversationID);
+    } else {
+      console.log(`lav ban chstacvec`);
+    }
+  };
+
+  const updateConversationTemporaryMessages = (message_details) => {
+    let copyOfConversations = [...conversations];
+    let foundObject = copyOfConversations.find(
+      (obj) => obj.conversation_id === message_details.conversation_id
+    );
+    if (foundObject) {
+      foundObject.messages.push(message_details);
+      if (selectedConversationID !== message_details.conversation_id) {
+        foundObject.is_read = false;
+      } else {
+        foundObject.is_read = true;
+      }
+
+      setconversations(copyOfConversations);
+      moveConversationToTop(message_details.conversation_id);
+    } else {
+      getConversations();
+    }
+  };
+
+  const markLastTempMessageInConversationsRead = (conversationID) => {
+    let copyOfConversations = [...conversations];
+    let foundObject = copyOfConversations.find(
+      (obj) => obj.conversation_id === conversationID
+    );
+    foundObject.messages[foundObject.messages.length - 1].is_read = true;
+    setconversations(copyOfConversations);
+  };
+
+  // const allMessagesReadByOtherParty = (conversationID) => {
+  //   let copyOfConversations = [...conversations];
+  //   let foundObject = copyOfConversations.find(
+  //     (obj) => obj.conversation_id === conversationID
+  //   );
+  //   foundObject.messages[foundObject.messages.length - 1].is_read = true;
+  //   setconversations(copyOfConversations);
+  // };
+
   const moveConversationToTop = (conversationID) => {
     const copyArray = [...conversations];
     const index = copyArray.findIndex(
@@ -144,6 +199,10 @@ export const ContextProvider = ({ children }) => {
         conversations,
         setconversations,
         getConversations,
+        updateSelectedConversationMessagesAsRead_Select_Conversation,
+        updateConversationTemporaryMessages,
+        // allMessagesReadByOtherParty,
+        markLastTempMessageInConversationsRead,
         moveConversationToTop,
         messages,
         setmessages,

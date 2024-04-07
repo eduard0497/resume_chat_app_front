@@ -129,21 +129,27 @@ const FriendsList = () => {
     return <div>No friends have been found</div>;
   }
   return (
-    <div className="col_gap">
+    <div className="row_with_wrap">
       {currentFriends.map((friend) => {
         return (
           <div
             key={friend.friendship_id}
             className="padding_15 border_radius_15 col_gap"
           >
-            <h2>{friend.first_name + " " + friend.last_name}</h2>
-            <div className="row_space_between">
-              <h3>Username {friend.username}</h3>
-              <h3>
-                Member Since:{" "}
-                {new Date(friend.account_created).toLocaleDateString()}
-              </h3>
+            <div className="row_with_gap">
+              <img
+                src="./default_profile_photo.jpg"
+                alt="profile_photo"
+                className="profile_photo"
+              />
+              <h2>{friend.first_name + " " + friend.last_name}</h2>
             </div>
+            <h3>Username:{" " + friend.username}</h3>
+            <h3>
+              Member Since:{" "}
+              {new Date(friend.account_created).toLocaleDateString()}
+            </h3>
+
             <div className="row_with_gap">
               <button onClick={() => startMessaging(friend.user_id)}>
                 Message
@@ -232,10 +238,6 @@ const CurrentPerson = ({ personToView }) => {
       Object.assign(personToView, res.data[0]);
       setloading(false);
     }
-    // socket.emit("send_friend_request", {
-    //   requestorToken: sessionStorage.getItem("token"),
-    //   receiver: personToView.user_id,
-    // });
   };
 
   const acceptFriendRequest = async () => {
@@ -315,15 +317,20 @@ const CurrentPerson = ({ personToView }) => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="border_radius_15 col_gap padding_15">
-      <h3>{personToView.first_name + " " + personToView.last_name}</h3>
-      <div className="row_space_between">
-        <p>{personToView.username}</p>
-        <p>
-          Member Since:{" "}
-          {new Date(personToView.account_created).toLocaleDateString()}
-        </p>
+    <div className="border_radius_15 col_gap padding_15 width_400">
+      <div className="row_with_gap">
+        <img
+          src="./default_profile_photo.jpg"
+          alt="profile_photo"
+          className="profile_photo"
+        />
+        <h2>{personToView.first_name + " " + personToView.last_name}</h2>
       </div>
+      <p>Username: {" " + personToView.username}</p>
+      <p>
+        Member Since:{" "}
+        {new Date(personToView.account_created).toLocaleDateString()}
+      </p>
 
       {loading ? <div>Loading...</div> : renderBasedOnFriendshipStatus()}
     </div>
@@ -343,12 +350,24 @@ const MyRequests = () => {
     <div className="row_with_gap">
       {mySentFriendRequests.map((request) => {
         return (
-          <div key={request.request_id} className="padding_15 border_radius_15">
-            <h2>{request.first_name + " " + request.last_name}</h2>
-            <div className="row_space_between">
-              <p>{request.username}</p>
-              <p>{new Date(request.account_created).toLocaleDateString()}</p>
+          <div
+            key={request.request_id}
+            className="padding_15 border_radius_15 col_gap"
+          >
+            <div className="row_with_gap">
+              <img
+                src="./default_profile_photo.jpg"
+                alt="profile_photo"
+                className="profile_photo"
+              />
+              <h2>{request.first_name + " " + request.last_name}</h2>
             </div>
+
+            <p>Username: {" " + request.username}</p>
+            <p>
+              Member Since:{" "}
+              {" " + new Date(request.account_created).toLocaleDateString()}
+            </p>
             <p>Waiting for user to approve or decline</p>
           </div>
         );
@@ -412,12 +431,24 @@ const PendingMyApproval = () => {
     <div className="row_with_gap">
       {myPendingApprovalFriendRequests.map((request) => {
         return (
-          <div key={request.request_id} className="padding_15 border_radius_15">
-            <h2>{request.first_name + " " + request.last_name}</h2>
-            <div className="row_space_between">
-              <p>{request.username}</p>
-              <p>{new Date(request.account_created).toLocaleDateString()}</p>
+          <div
+            key={request.request_id}
+            className="padding_15 border_radius_15 col_gap"
+          >
+            <div className="row_with_gap">
+              <img
+                src="./default_profile_photo.jpg"
+                alt="profile_photo"
+                className="profile_photo"
+              />
+              <h2>{request.first_name + " " + request.last_name}</h2>
             </div>
+
+            <p>Username: {" " + request.username}</p>
+            <p>
+              Member Since:{" "}
+              {" " + new Date(request.account_created).toLocaleDateString()}
+            </p>
             <div className="row_space_between">
               <button onClick={() => rejectFriendRequest(request.request_id)}>
                 Reject

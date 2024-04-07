@@ -20,62 +20,99 @@ function Messages() {
 export default Messages;
 
 const Conversations = () => {
-  const { conversations, selectedConversationID, setselectedConversationID } =
-    useContext(MyContext);
+  const {
+    conversations,
+    selectedConversationID,
+    updateSelectedConversationMessagesAsRead_Select_Conversation,
+  } = useContext(MyContext);
+
+  const getLastMessageValues = (conversation, whatToGet) => {
+    if (whatToGet === "sent_at") {
+      let date_time = new Date(
+        conversation.messages[conversation.messages.length - 1]["sent_at"]
+      );
+      let today = new Date();
+
+      if (
+        date_time.getDate() === today.getDate() &&
+        date_time.getMonth() === today.getMonth() &&
+        date_time.getFullYear() === today.getFullYear()
+      ) {
+        return date_time.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } else {
+        return date_time.toLocaleDateString();
+      }
+    } else {
+      return conversation.messages[conversation.messages.length - 1][whatToGet];
+    }
+  };
 
   return (
-    <div className="border_radius_15 padding_15 flex_03 col_no_gap">
+    <div className="border_radius_15 padding_15 width_400 col_no_gap">
       {conversations.map((conversation) => {
         return (
           <div
             key={conversation.conversation_id}
-            className={`border_radius_15 padding_15 pointer ${
+            className={`border_radius_15 padding_15 row_with_gap pointer   ${
               selectedConversationID === conversation.conversation_id
                 ? "selected"
                 : ""
             }`}
             onClick={() =>
-              setselectedConversationID(conversation.conversation_id)
+              updateSelectedConversationMessagesAsRead_Select_Conversation(
+                conversation.conversation_id
+              )
             }
           >
-            <h3>{conversation.first_name + " " + conversation.last_name}</h3>
-            {selectedConversationID !== conversation.conversation_id ? (
-              <>
-                {conversation.last_message_sender_id !==
-                conversation.user_id ? (
-                  <div>
-                    <p>You: {conversation.last_message}</p>
-                  </div>
-                ) : (
-                  <div className="row_space_between">
-                    <p>{conversation.last_message}</p>
-                    <p>
-                      {new Date(
-                        conversation.last_message_time
-                      ).toLocaleDateString()}
-                    </p>
-                    {!conversation.last_message_is_read ? (
-                      <span>new message blink</span>
-                    ) : null}
-                  </div>
-                )}
-
-                {/*  */}
-                {/* {conversation.last_message_sender_id === conversation.user_id &&
-                !conversation.last_message_is_read ? (
-                  <div className="row_space_between">
-                    <p>{conversation.last_message}</p>
-                    <p>
-                      {new Date(
-                        conversation.last_message_time
-                      ).toLocaleDateString()}
-                    </p>
-                  </div>
-                ) : null} */}
-              </>
-            ) : null}
-
-            {/* <p>{conversation.username}</p> */}
+            <div>
+              <img
+                src="./default_profile_photo.jpg"
+                alt="profile_photo"
+                className="profile_photo"
+              />
+            </div>
+            <div className="col_gap">
+              <h3>{conversation.first_name + " " + conversation.last_name}</h3>
+              {selectedConversationID !== conversation.conversation_id ? (
+                <>
+                  {!conversation.messages[0].message_id ? (
+                    <p>No Messages</p>
+                  ) : (
+                    <>
+                      {conversation.messages[conversation.messages.length - 1]
+                        .sender_id !== conversation.user_id ? (
+                        <div className="row_space_between">
+                          <p>
+                            You:{" "}
+                            {getLastMessageValues(
+                              conversation,
+                              "message_content"
+                            )}
+                          </p>
+                          <p>{getLastMessageValues(conversation, "sent_at")}</p>
+                        </div>
+                      ) : (
+                        <div className="row_space_between">
+                          <p>
+                            {getLastMessageValues(
+                              conversation,
+                              "message_content"
+                            )}
+                          </p>
+                          <p>{getLastMessageValues(conversation, "sent_at")}</p>
+                          {!getLastMessageValues(conversation, "is_read") ? (
+                            <span>new message blink</span>
+                          ) : null}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              ) : null}
+            </div>
           </div>
         );
       })}
@@ -88,6 +125,7 @@ const SelectedConversation = () => {
     socket,
     selectedConversationID,
     moveConversationToTop,
+    updateConversationTemporaryMessages,
     messages,
     setmessages,
   } = useContext(MyContext);
@@ -158,15 +196,9 @@ const SelectedConversation = () => {
           console.log(res.msg);
           setsendButtonLoading(false);
         } else {
+          updateConversationTemporaryMessages(res.message_details);
           let newMessages = [...messages];
-          newMessages.push({
-            id: messages.length > 0 ? messages[messages.length - 1].id + 1 : 1,
-            conversation_id: selectedConversationID,
-            sender_id: myID,
-            message_content: messageToSend,
-            sent_at: new Date(),
-            is_read: false,
-          });
+          newMessages.push(res.message_details);
           moveConversationToTop(selectedConversationID);
           setmessageToSend("");
           setmessages(newMessages);
