@@ -17,6 +17,8 @@ function Dashboard({ changeLoginState }) {
     selectedConversationID,
     setselectedConversationID,
     mainTab,
+    friendsTab,
+    getMyPendingApprovalFriendRequests,
     setmainTab,
     messages,
     setmessages,
@@ -74,7 +76,11 @@ function Dashboard({ changeLoginState }) {
     };
 
     const handleNewFriendRequest = (data) => {
-      alert(data);
+      if (friendsTab === "pending_approval" && mainTab === "friends") {
+        getMyPendingApprovalFriendRequests();
+      } else {
+        alert(data);
+      }
     };
 
     const handleFriendRequestAccepted = (data) => {
@@ -167,6 +173,8 @@ function Dashboard({ changeLoginState }) {
   }, [
     socket,
     mainTab,
+    friendsTab,
+    getMyPendingApprovalFriendRequests,
     selectedConversationID,
     conversations,
     messages,

@@ -78,7 +78,8 @@ const Conversations = () => {
               <h3>{conversation.first_name + " " + conversation.last_name}</h3>
               {selectedConversationID !== conversation.conversation_id ? (
                 <>
-                  {!conversation.messages[0].message_id ? (
+                  {conversation.messages.length === 1 &&
+                  !conversation.messages[0].message_id ? (
                     <p>No Messages</p>
                   ) : (
                     <>
