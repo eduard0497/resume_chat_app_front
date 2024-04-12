@@ -18,6 +18,7 @@ function Dashboard({ changeLoginState }) {
     setselectedConversationID,
     mainTab,
     friendsTab,
+    loadCurrentFriends,
     getMyPendingApprovalFriendRequests,
     setmainTab,
     messages,
@@ -68,6 +69,7 @@ function Dashboard({ changeLoginState }) {
     }
 
     const handleConnectionEstablished = (data) => {
+      console.log(data);
       setconnectionEstablished(true);
     };
 
@@ -84,7 +86,13 @@ function Dashboard({ changeLoginState }) {
     };
 
     const handleFriendRequestAccepted = (data) => {
-      alert(data);
+      if (mainTab === "friends" && friendsTab === "friends") {
+        loadCurrentFriends();
+      } else {
+        alert(
+          `${data.first_name} ${data.last_name} accepted your friend request`
+        );
+      }
     };
 
     const handleReceiveMessage = ({ message_details }) => {
@@ -175,6 +183,7 @@ function Dashboard({ changeLoginState }) {
     mainTab,
     friendsTab,
     getMyPendingApprovalFriendRequests,
+    loadCurrentFriends,
     selectedConversationID,
     conversations,
     messages,

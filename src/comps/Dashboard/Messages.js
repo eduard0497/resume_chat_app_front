@@ -229,6 +229,10 @@ const SelectedConversation = () => {
     }
   };
 
+  // const is_the_message_last_one = () => {
+
+  // }
+
   if (!selectedConversationID)
     return (
       <div className="border_radius_15 padding_15 flex_1">
@@ -250,7 +254,8 @@ const SelectedConversation = () => {
               <p>{message.message_content}</p>
               <div className="messaging_container_messages_details">
                 <p>
-                  {message.sender_id !== otherPartyID ? (
+                  {message.sender_id !== otherPartyID &&
+                  message.id === messages[messages.length - 1].id ? (
                     <>{message.is_read ? "read" : "Not Read"}</>
                   ) : null}
                 </p>
