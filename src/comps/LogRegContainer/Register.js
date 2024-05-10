@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { notify } from "../../functions/toast";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaRegUser, FaEraser } from "react-icons/fa6";
 
-function Register() {
-  const [loading, setloading] = useState(false);
+function Register({ toggle, handleLoading }) {
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
   const [confirmPassword, setconfirmPassword] = useState("");
@@ -26,19 +28,35 @@ function Register() {
       !first_name ||
       !last_name
     ) {
-      alert("Fields may not be empty");
+      notify({
+        text: "All fields are required",
+        error: true,
+      });
       return;
     }
 
     if (password.length < 8) {
-      alert("Password must be at least 8 chars long");
+      notify({
+        text: "Password must be at least 8 chars long",
+        error: true,
+      });
+      return;
+    }
+    if (password.trim().length === 0 || password.includes(" ")) {
+      notify({
+        text: "Password may not contain spaces",
+        error: true,
+      });
       return;
     }
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      notify({
+        text: "Passwords do not match!",
+        error: true,
+      });
       return;
     }
-    setloading(true);
+    handleLoading(true);
     const req = await fetch(`${process.env.REACT_APP_BACK_END}/register-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -51,12 +69,18 @@ function Register() {
     });
     const res = await req.json();
     if (!res.status) {
-      alert(res.msg);
+      notify({
+        text: res.msg,
+        error: true,
+      });
     } else {
-      alert(res.msg);
+      notify({
+        text: res.msg,
+        success: true,
+      });
       clearInputs();
     }
-    setloading(false);
+    handleLoading(false);
   };
 
   const handleKeyPress = (event) => {
@@ -66,7 +90,7 @@ function Register() {
   };
 
   return (
-    <div className="col_gap border_radius_15 padding_20">
+    <div className="general_form">
       <h1>Register</h1>
       <input
         type="text"
@@ -82,16 +106,21 @@ function Register() {
         onChange={(e) => setpassword(e.target.value)}
         onKeyDown={handleKeyPress}
       />
-      <input
-        type={isPasswordVisible ? "text" : "password"}
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChange={(e) => setconfirmPassword(e.target.value)}
-        onKeyDown={handleKeyPress}
-      />
-      <button onClick={() => setisPasswordVisible(!isPasswordVisible)}>
-        see password
-      </button>
+      <div className="general_form_input_confirm_password">
+        <input
+          type={isPasswordVisible ? "text" : "password"}
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setconfirmPassword(e.target.value)}
+          onKeyDown={handleKeyPress}
+        />
+        <span
+          className="general_form_input_confirm_password_eye_icon"
+          onClick={() => setisPasswordVisible(!isPasswordVisible)}
+        >
+          {!isPasswordVisible ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+        </span>
+      </div>
       <input
         type="text"
         placeholder="First Name"
@@ -107,13 +136,22 @@ function Register() {
         onKeyDown={handleKeyPress}
       />
       <div className="row_space_around">
-        <button onClick={clearInputs}>CLEAR</button>
-        {loading ? (
-          <button>Loading...</button>
-        ) : (
-          <button onClick={userRegister}>REGISTER</button>
-        )}
+        <button className="general_form_button_clear" onClick={clearInputs}>
+          <FaEraser />
+          CLEAR
+        </button>
+        <button className="general_form_button_submit" onClick={userRegister}>
+          <FaRegUser />
+          REGISTER
+        </button>
       </div>
+
+      <span className="text_with_hyper_link">
+        Have an account?{" "}
+        <button className="hyper_link" onClick={toggle}>
+          Login instead
+        </button>{" "}
+      </span>
     </div>
   );
 }

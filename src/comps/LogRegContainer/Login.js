@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { FaSignInAlt } from "react-icons/fa";
+import { FaEraser } from "react-icons/fa6";
+import { notify } from "../../functions/toast";
 
-function Login({ handleLoading, changeLoginState }) {
+function Login({ toggle, handleLoading, changeLoginState }) {
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
 
@@ -11,7 +14,10 @@ function Login({ handleLoading, changeLoginState }) {
 
   const userLogin = async () => {
     if (!username || !password) {
-      alert("Either username or password were not provided");
+      notify({
+        text: "Fields are required",
+        error: true,
+      });
       return;
     }
 
@@ -26,7 +32,10 @@ function Login({ handleLoading, changeLoginState }) {
     });
     const res = await req.json();
     if (!res.status) {
-      alert(res.msg);
+      notify({
+        text: res.msg,
+        error: true,
+      });
       handleLoading(false);
     } else {
       sessionStorage.setItem("token", res.token);
@@ -34,8 +43,8 @@ function Login({ handleLoading, changeLoginState }) {
       sessionStorage.setItem("first_name", res.userInfo.first_name);
       sessionStorage.setItem("last_name", res.userInfo.last_name);
       sessionStorage.setItem("user_since", res.userInfo.user_since);
-      handleLoading(false);
       changeLoginState(true);
+      handleLoading(false);
     }
   };
 
@@ -46,7 +55,7 @@ function Login({ handleLoading, changeLoginState }) {
   };
 
   return (
-    <div className="col_gap border_radius_15 padding_20">
+    <div className="general_form">
       <h1>Login</h1>
       <input
         type="text"
@@ -63,9 +72,21 @@ function Login({ handleLoading, changeLoginState }) {
         onKeyDown={handleKeyPress}
       />
       <div className="row_space_around">
-        <button onClick={clearInputs}>CLEAR</button>
-        <button onClick={userLogin}>LOGIN</button>
+        <button className="general_form_button_clear" onClick={clearInputs}>
+          <FaEraser />
+          CLEAR
+        </button>
+        <button className="general_form_button_submit" onClick={userLogin}>
+          <FaSignInAlt />
+          LOGIN
+        </button>
       </div>
+      <span className="text_with_hyper_link">
+        No account?{" "}
+        <button className="hyper_link" onClick={toggle}>
+          Register
+        </button>{" "}
+      </span>
     </div>
   );
 }

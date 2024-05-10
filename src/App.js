@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import LogRegContainer from "./comps/LogRegContainer/LogRegContainer";
 import Dashboard from "./comps/Dashboard/Dashboard";
 import { ContextProvider } from "./comps/ContextProvider/ContextProvider";
+import LoadingScreen from "./comps/LoadingScreen";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // import "./App.css";
 
 function App() {
-  const [loading, setloading] = useState(false);
+  const [loading, setloading] = useState(true);
   const handleLoading = (bool) => {
     setloading(bool);
   };
@@ -50,10 +53,11 @@ function App() {
 
   return (
     <>
+      <div>
+        <ToastContainer />
+      </div>
       {loading ? (
-        <div className="center_flex">
-          <h1>LOADING....</h1>
-        </div>
+        <LoadingScreen />
       ) : (
         <div className="screen">
           {isLoggedIn ? (
