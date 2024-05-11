@@ -1,3 +1,18 @@
+.navbar {
+  border-radius: 15px;
+  background-color: var(--color_dark);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px;
+  transition: all 0.2s ease-in;
+  color: var(--color_silver);
+}
+
+.navbar:hover {
+  box-shadow: 0px 5px 10px 5px var(--color_darkest);
+}
+
 .navbar_user_icon {
   position: relative;
 }
@@ -25,4 +40,66 @@
   flex-direction: column;
   gap: 10px;
   width: 200px;
+  border-radius: 15px;
+  background-color: var(--color_darkest);
+  padding: 20px 30px;
+  transition: all 0.2s ease-in;
+  color: var(--color_silver);
+}
+
+.navbar_link {
+  padding: 10px 15px;
+  background-color: var(--color_darker);
+  color: var(--color_silver);
+  font-weight: bolder;
+  transition: all 0.2s ease-in;
+}
+
+.navbar_link:hover {
+  background-color: var(--color_navy);
+  color: var(--color_darker);
+}
+
+.navbar_link_error {
+  padding: 10px 15px;
+  background-color: var(--color_red);
+  color: var(--color_silver);
+  font-weight: bolder;
+  transition: all 0.2s ease-in;
+}
+
+.navbar_link_error:hover {
+  background-color: var(--color_darker);
+  color: var(--color_red);
+}
+
+.settings_container {
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 15px;
+  background-color: var(--color_dark);
+  /* display: flex; */
+  /* align-items: center; */
+  /* justify-content: space-around; */
+  padding: 30px;
+  transition: all 0.2s ease-in;
+  color: var(--color_silver);
+}
+
+.settings_container:hover {
+  box-shadow: 0px 5px 10px 5px var(--color_darkest);
+}
+
+.settings_container_edit_form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settings_container_edit_form > input {
+  background-color: var(--color_darker);
+  color: var(--color_silver);
+  outline: none;
+  padding: 10px;
 }

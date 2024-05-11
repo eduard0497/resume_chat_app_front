@@ -246,7 +246,7 @@ const Navbar = ({
   };
 
   return (
-    <div className="border_radius_15 row_space_around padding_10">
+    <div className="navbar">
       <div>
         <h1>
           {sessionStorage.getItem("first_name") +
@@ -260,10 +260,13 @@ const Navbar = ({
             setmainTab("friends");
             setselectedConversationID(null);
           }}
+          className="navbar_link"
         >
           Friends
         </button>
-        <button onClick={() => setmainTab("messages")}>Messages</button>
+        <button onClick={() => setmainTab("messages")} className="navbar_link">
+          Messages
+        </button>
       </div>
 
       <div className="navbar_user_icon padding_10">
@@ -272,16 +275,19 @@ const Navbar = ({
           alt="profile"
           className="profile_photo"
         />
-        <div className="navbar_user_dropdown padding_15 border_radius_10">
+        <div className="navbar_user_dropdown">
           <button
             onClick={() => {
               setmainTab("settings");
               setselectedConversationID(null);
             }}
+            className="navbar_link"
           >
             Settings
           </button>
-          <button onClick={logOut}>Log_Out</button>
+          <button onClick={logOut} className="navbar_link_error">
+            Log Out
+          </button>
         </div>
       </div>
     </div>

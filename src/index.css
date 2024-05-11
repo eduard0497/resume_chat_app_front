@@ -5,6 +5,7 @@
   --color_dark: #424549;
   --color_darker: #282b30;
   --color_darkest: #1e2124;
+  --color_red: #b60000;
 }
 
 *,
@@ -140,6 +141,21 @@ button {
   background-color: var(--color_darkest);
   color: var(--color_navy);
 }
+
+.general_form_button_spinner_anime {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color_navy);
+  padding: 10px 15px;
+  /* color: var(--color_white); */
+  transition: all 0.2s ease-in;
+}
+
+/* .general_form_button_spinner_anime:hover {
+  background-color: var(--color_darkest);
+  color: var(--color_navy);
+} */
 
 .log_reg_container {
   margin-top: 150px;

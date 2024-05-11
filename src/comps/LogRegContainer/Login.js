@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import { FaSignInAlt } from "react-icons/fa";
 import { FaEraser } from "react-icons/fa6";
 import { notify } from "../../functions/toast";
+import BeatLoader from "react-spinners/BeatLoader";
 
-function Login({ toggle, handleLoading, changeLoginState }) {
+const Submit_Button_Spinner_Color = "#282b30";
+
+function Login({ toggle, changeLoginState }) {
+  const [loading, setloading] = useState(false);
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
 
@@ -20,8 +24,7 @@ function Login({ toggle, handleLoading, changeLoginState }) {
       });
       return;
     }
-
-    handleLoading(true);
+    setloading(true);
     const req = await fetch(`${process.env.REACT_APP_BACK_END}/user-login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -36,15 +39,15 @@ function Login({ toggle, handleLoading, changeLoginState }) {
         text: res.msg,
         error: true,
       });
-      handleLoading(false);
+      setloading(false);
     } else {
       sessionStorage.setItem("token", res.token);
       sessionStorage.setItem("username", res.userInfo.username);
       sessionStorage.setItem("first_name", res.userInfo.first_name);
       sessionStorage.setItem("last_name", res.userInfo.last_name);
       sessionStorage.setItem("user_since", res.userInfo.user_since);
+      setloading(false);
       changeLoginState(true);
-      handleLoading(false);
     }
   };
 
@@ -76,10 +79,16 @@ function Login({ toggle, handleLoading, changeLoginState }) {
           <FaEraser />
           CLEAR
         </button>
-        <button className="general_form_button_submit" onClick={userLogin}>
-          <FaSignInAlt />
-          LOGIN
-        </button>
+        {loading ? (
+          <button className="general_form_button_spinner_anime">
+            <BeatLoader color={Submit_Button_Spinner_Color} loading />
+          </button>
+        ) : (
+          <button className="general_form_button_submit" onClick={userLogin}>
+            <FaSignInAlt />
+            LOGIN
+          </button>
+        )}
       </div>
       <span className="text_with_hyper_link">
         No account?{" "}

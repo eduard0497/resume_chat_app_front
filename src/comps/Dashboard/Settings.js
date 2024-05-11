@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./Dashboard.css";
 
 const Settings = () => {
   const [loading, setloading] = useState(false);
@@ -61,9 +62,9 @@ const Settings = () => {
   if (!userInfo.length) return <div>ERROR</div>;
 
   return (
-    <div className="padding_15 border_radius_15">
+    <div className="settings_container">
       {updateInfoToggle ? (
-        <div className="col_gap">
+        <div className="settings_container_edit_form">
           <input
             type="text"
             placeholder="First Name"
@@ -76,40 +77,42 @@ const Settings = () => {
             value={last_nameToUpdate}
             onChange={(e) => setlast_nameToUpdate(e.target.value)}
           />
-          <div>
+          <div className="row_space_between">
             <button
               onClick={() => {
                 setfirst_nameToUpdate("");
                 setlast_nameToUpdate("");
                 setupdateInfoToggle(false);
               }}
+              className="navbar_link_error"
             >
               Cancel
             </button>
-            <button onClick={updateUserInfo}>Update User Info</button>
+            <button onClick={updateUserInfo} className="navbar_link">
+              Update User Info
+            </button>
           </div>
         </div>
       ) : (
         <div className="col_gap">
           <h1>User Settings</h1>
-          <h2>Your Username: {userInfo[0].username}</h2>
+          <h2>Username: {userInfo[0].username}</h2>
           <h2>First Name: {userInfo[0].first_name}</h2>
           <h2>Last Name: {userInfo[0].last_name}</h2>
           <h2>
             Member Since:{" "}
             {new Date(userInfo[0].account_created).toLocaleDateString()}
           </h2>
-          <div>
-            <button
-              onClick={() => {
-                setfirst_nameToUpdate(userInfo[0].first_name);
-                setlast_nameToUpdate(userInfo[0].last_name);
-                setupdateInfoToggle(true);
-              }}
-            >
-              Edit Info
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              setfirst_nameToUpdate(userInfo[0].first_name);
+              setlast_nameToUpdate(userInfo[0].last_name);
+              setupdateInfoToggle(true);
+            }}
+            className="navbar_link"
+          >
+            Edit Info
+          </button>
         </div>
       )}
     </div>
