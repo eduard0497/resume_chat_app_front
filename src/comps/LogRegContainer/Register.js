@@ -90,8 +90,8 @@ function Register({ toggle, handleLoading }) {
   };
 
   return (
-    <div className="general_form">
-      <h1>Register</h1>
+    <div className="container_with_shadow column width_500">
+      <h1 className="center">Register</h1>
       <input
         type="text"
         placeholder="Username"
@@ -106,13 +106,14 @@ function Register({ toggle, handleLoading }) {
         onChange={(e) => setpassword(e.target.value)}
         onKeyDown={handleKeyPress}
       />
-      <div className="general_form_input_confirm_password">
+      <div className="center">
         <input
           type={isPasswordVisible ? "text" : "password"}
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setconfirmPassword(e.target.value)}
           onKeyDown={handleKeyPress}
+          className="width_100_per"
         />
         <span
           className="general_form_input_confirm_password_eye_icon"
@@ -136,11 +137,11 @@ function Register({ toggle, handleLoading }) {
         onKeyDown={handleKeyPress}
       />
       <div className="row_space_around">
-        <button className="general_form_button_clear" onClick={clearInputs}>
+        <button className="button_error" onClick={clearInputs}>
           <FaEraser />
           CLEAR
         </button>
-        <button className="general_form_button_submit" onClick={userRegister}>
+        <button className="button_submit_navy_to_gray" onClick={userRegister}>
           <FaRegUser />
           REGISTER
         </button>

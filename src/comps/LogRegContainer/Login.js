@@ -58,8 +58,8 @@ function Login({ toggle, changeLoginState }) {
   };
 
   return (
-    <div className="general_form">
-      <h1>Login</h1>
+    <div className="container_with_shadow column width_500">
+      <h1 className="center">Login</h1>
       <input
         type="text"
         placeholder="Username"
@@ -75,16 +75,16 @@ function Login({ toggle, changeLoginState }) {
         onKeyDown={handleKeyPress}
       />
       <div className="row_space_around">
-        <button className="general_form_button_clear" onClick={clearInputs}>
+        <button className="button_error" onClick={clearInputs}>
           <FaEraser />
           CLEAR
         </button>
         {loading ? (
-          <button className="general_form_button_spinner_anime">
+          <button className="button_spinner">
             <BeatLoader color={Submit_Button_Spinner_Color} loading />
           </button>
         ) : (
-          <button className="general_form_button_submit" onClick={userLogin}>
+          <button className="button_submit_navy_to_gray" onClick={userLogin}>
             <FaSignInAlt />
             LOGIN
           </button>

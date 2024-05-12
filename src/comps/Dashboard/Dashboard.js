@@ -4,7 +4,6 @@ import Settings from "./Settings";
 import Friends from "./Friends";
 import Messages from "./Messages";
 import io from "socket.io-client";
-import "./Dashboard.css";
 
 function Dashboard({ changeLoginState }) {
   const {
@@ -246,7 +245,7 @@ const Navbar = ({
   };
 
   return (
-    <div className="navbar">
+    <div className="container_with_shadow row_space_around">
       <div>
         <h1>
           {sessionStorage.getItem("first_name") +
@@ -260,11 +259,14 @@ const Navbar = ({
             setmainTab("friends");
             setselectedConversationID(null);
           }}
-          className="navbar_link"
+          className="button_submit_gray_to_navy"
         >
           Friends
         </button>
-        <button onClick={() => setmainTab("messages")} className="navbar_link">
+        <button
+          onClick={() => setmainTab("messages")}
+          className="button_submit_gray_to_navy"
+        >
           Messages
         </button>
       </div>
@@ -281,11 +283,11 @@ const Navbar = ({
               setmainTab("settings");
               setselectedConversationID(null);
             }}
-            className="navbar_link"
+            className="button_submit_gray_to_navy"
           >
             Settings
           </button>
-          <button onClick={logOut} className="navbar_link_error">
+          <button onClick={logOut} className="button_error">
             Log Out
           </button>
         </div>

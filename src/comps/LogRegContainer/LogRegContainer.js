@@ -10,7 +10,7 @@ function LogRegContainer({ handleLoading, changeLoginState }) {
   };
 
   return (
-    <div className="log_reg_container ">
+    <div className="center margin_top_150">
       {viewToggle ? (
         <Login
           toggle={toggle}

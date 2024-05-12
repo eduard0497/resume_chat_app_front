@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import MyContext from "../ContextProvider/ContextProvider";
+import BeatLoader from "react-spinners/BeatLoader";
+
+const Submit_Button_Spinner_Color = "#282b30";
 
 function Friends() {
   const { friendsTab, setfriendsTab } = useContext(MyContext);
@@ -34,6 +37,7 @@ function Friends() {
             setfriendsTab(data.setTab);
             setpersonToView(null);
           }}
+          className="navbar_link"
         >
           {data.value}
         </button>
@@ -67,11 +71,11 @@ function Friends() {
 
   return (
     <div className="row_space_between_flex_start height_90">
-      <div className="flex_04 border_radius_15 padding_15 col_gap">
+      <div className="general_shadow_container flex_04 col_gap">
         {renderTabs()}
       </div>
       {friendsTab === "" ? null : (
-        <div className="flex_1 border_radius_15 padding_15">
+        <div className="general_shadow_container flex_1">
           {renderCurrentView()}
         </div>
       )}
@@ -204,11 +208,16 @@ const SearchPeople = ({ setpersonToView }) => {
         value={usernameToSearch}
         onChange={(e) => setusernameToSearch(e.target.value)}
         onKeyDown={handleKeyPress}
+        className="form_input"
       />
       {loading ? (
-        <button>Loading...</button>
+        <button className="general_form_button_spinner_anime">
+          <BeatLoader color={Submit_Button_Spinner_Color} loading />
+        </button>
       ) : (
-        <button onClick={search}>Search</button>
+        <button className="navbar_link" onClick={search}>
+          Search
+        </button>
       )}
     </div>
   );

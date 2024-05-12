@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "./Dashboard.css";
 
 const Settings = () => {
   const [loading, setloading] = useState(false);
@@ -62,9 +61,9 @@ const Settings = () => {
   if (!userInfo.length) return <div>ERROR</div>;
 
   return (
-    <div className="settings_container">
+    <div className="container_with_shadow">
       {updateInfoToggle ? (
-        <div className="settings_container_edit_form">
+        <div className="column width_fit">
           <input
             type="text"
             placeholder="First Name"
@@ -77,24 +76,27 @@ const Settings = () => {
             value={last_nameToUpdate}
             onChange={(e) => setlast_nameToUpdate(e.target.value)}
           />
-          <div className="row_space_between">
+          <div className="row_with_gap">
             <button
               onClick={() => {
                 setfirst_nameToUpdate("");
                 setlast_nameToUpdate("");
                 setupdateInfoToggle(false);
               }}
-              className="navbar_link_error"
+              className="button_error"
             >
               Cancel
             </button>
-            <button onClick={updateUserInfo} className="navbar_link">
+            <button
+              onClick={updateUserInfo}
+              className="button_submit_navy_to_gray"
+            >
               Update User Info
             </button>
           </div>
         </div>
       ) : (
-        <div className="col_gap">
+        <div className="column width_fit">
           <h1>User Settings</h1>
           <h2>Username: {userInfo[0].username}</h2>
           <h2>First Name: {userInfo[0].first_name}</h2>
@@ -109,7 +111,7 @@ const Settings = () => {
               setlast_nameToUpdate(userInfo[0].last_name);
               setupdateInfoToggle(true);
             }}
-            className="navbar_link"
+            className="button_submit_navy_to_gray"
           >
             Edit Info
           </button>

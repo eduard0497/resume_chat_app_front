@@ -5,7 +5,6 @@ import { ContextProvider } from "./comps/ContextProvider/ContextProvider";
 import LoadingScreen from "./comps/LoadingScreen";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// import "./App.css";
 
 function App() {
   const [loading, setloading] = useState(true);
