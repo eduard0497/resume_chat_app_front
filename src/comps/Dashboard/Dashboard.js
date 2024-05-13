@@ -4,6 +4,8 @@ import Settings from "./Settings";
 import Friends from "./Friends";
 import Messages from "./Messages";
 import io from "socket.io-client";
+import { notify } from "../../functions/toast";
+import LoadingScreen from "../LoadingScreen";
 
 function Dashboard({ changeLoginState }) {
   const {
@@ -68,19 +70,24 @@ function Dashboard({ changeLoginState }) {
     }
 
     const handleConnectionEstablished = (data) => {
-      console.log(data);
       setconnectionEstablished(true);
     };
 
     const handleError = (data) => {
-      alert(data);
+      notify({
+        text: data,
+        error: true,
+      });
     };
 
     const handleNewFriendRequest = (data) => {
       if (friendsTab === "pending_approval" && mainTab === "friends") {
         getMyPendingApprovalFriendRequests();
       } else {
-        alert(data);
+        notify({
+          text: data,
+          success: true,
+        });
       }
     };
 
@@ -88,15 +95,19 @@ function Dashboard({ changeLoginState }) {
       if (mainTab === "friends" && friendsTab === "friends") {
         loadCurrentFriends();
       } else {
-        alert(
-          `${data.first_name} ${data.last_name} accepted your friend request`
-        );
+        notify({
+          text: `${data.first_name} ${data.last_name} accepted your friend request`,
+          success: true,
+        });
       }
     };
 
     const handleReceiveMessage = ({ message_details }) => {
       if (mainTab !== "messages") {
-        alert(`New Message ${message_details.message_content}`);
+        notify({
+          text: `New Message ${message_details.message_content}`,
+          success: true,
+        });
       } else {
         updateConversationTemporaryMessages(message_details);
 
@@ -116,10 +127,16 @@ function Dashboard({ changeLoginState }) {
 
     const handleOtherPartyReadMesssage = ({ message_details }) => {
       if (mainTab !== "messages") {
-        alert(`New Message ${message_details.message_content}`);
+        notify({
+          text: `New Message ${message_details.message_content}`,
+          success: true,
+        });
       } else {
         if (selectedConversationID !== message_details.conversation_id) {
-          console.log(`New Message ${message_details.message_content}`);
+          notify({
+            text: `New Message ${message_details.message_content}`,
+            success: true,
+          });
         } else {
           let copyOfMessages = [...messages];
           let index = copyOfMessages.findIndex(
@@ -136,7 +153,6 @@ function Dashboard({ changeLoginState }) {
         console.log(
           `All messages at conversation ${conversation_id} have been read`
         );
-        // alert(`New Message ${message_details.message_content}`);
       } else {
         if (selectedConversationID !== conversation_id) {
           console.log(
@@ -193,27 +209,15 @@ function Dashboard({ changeLoginState }) {
   ]);
 
   if (!socket) {
-    return (
-      <div>
-        <h1>Unable to establish a connection</h1>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!connectionEstablished) {
-    return (
-      <div>
-        <h1>Waiting to establish a connection</h1>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (loading) {
-    return (
-      <div>
-        <h1>Loading...</h1>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (

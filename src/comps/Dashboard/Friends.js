@@ -37,7 +37,7 @@ function Friends() {
             setfriendsTab(data.setTab);
             setpersonToView(null);
           }}
-          className="navbar_link"
+          className="button_submit_gray_to_navy"
         >
           {data.value}
         </button>
@@ -70,12 +70,10 @@ function Friends() {
   };
 
   return (
-    <div className="row_space_between_flex_start height_90">
-      <div className="general_shadow_container flex_04 col_gap">
-        {renderTabs()}
-      </div>
+    <div className="row_with_gap flex_Start height_90_per">
+      <div className="container_with_shadow flex_04 column">{renderTabs()}</div>
       {friendsTab === "" ? null : (
-        <div className="general_shadow_container flex_1">
+        <div className="container_with_shadow flex_1">
           {renderCurrentView()}
         </div>
       )}
@@ -90,84 +88,6 @@ function Friends() {
 }
 
 export default Friends;
-
-const FriendsList = () => {
-  const {
-    setselectedConversationID,
-    setmainTab,
-    currentFriends,
-    loadCurrentFriends,
-    unfriend,
-  } = useContext(MyContext);
-  // eslint-disable-next-line
-  const [loading, setloading] = useState(false);
-
-  const startMessaging = async (personID) => {
-    const req = await fetch(
-      `${process.env.REACT_APP_BACK_END}/start-messaging-from-friends-list`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: sessionStorage.getItem("token"),
-          personID,
-        }),
-      }
-    );
-    const res = await req.json();
-    if (!res.status) {
-      alert(res.msg);
-    } else {
-      setselectedConversationID(res.data[0].id);
-      setmainTab("messages");
-    }
-  };
-
-  useEffect(() => {
-    loadCurrentFriends();
-    // eslint-disable-next-line
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  if (!currentFriends.length) {
-    return <div>No friends have been found</div>;
-  }
-  return (
-    <div className="row_with_wrap">
-      {currentFriends.map((friend) => {
-        return (
-          <div
-            key={friend.friendship_id}
-            className="padding_15 border_radius_15 col_gap"
-          >
-            <div className="row_with_gap">
-              <img
-                src="./default_profile_photo.jpg"
-                alt="profile_photo"
-                className="profile_photo"
-              />
-              <h2>{friend.first_name + " " + friend.last_name}</h2>
-            </div>
-            <h3>Username:{" " + friend.username}</h3>
-            <h3>
-              Member Since:{" "}
-              {new Date(friend.account_created).toLocaleDateString()}
-            </h3>
-
-            <div className="row_with_gap">
-              <button onClick={() => startMessaging(friend.user_id)}>
-                Message
-              </button>
-              <button onClick={() => unfriend(friend.friendship_id)}>
-                Delete Friend
-              </button>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
 
 const SearchPeople = ({ setpersonToView }) => {
   const [loading, setloading] = useState(false);
@@ -208,14 +128,13 @@ const SearchPeople = ({ setpersonToView }) => {
         value={usernameToSearch}
         onChange={(e) => setusernameToSearch(e.target.value)}
         onKeyDown={handleKeyPress}
-        className="form_input"
       />
       {loading ? (
-        <button className="general_form_button_spinner_anime">
+        <button className="button_spinner">
           <BeatLoader color={Submit_Button_Spinner_Color} loading />
         </button>
       ) : (
-        <button className="navbar_link" onClick={search}>
+        <button className="button_submit_gray_to_navy" onClick={search}>
           Search
         </button>
       )}
@@ -302,15 +221,29 @@ const CurrentPerson = ({ personToView }) => {
   const renderBasedOnFriendshipStatus = () => {
     switch (personToView.status) {
       case null:
-        return <button onClick={sendFriendRequest}>Send Friend Request</button>;
+        return (
+          <button
+            onClick={sendFriendRequest}
+            className="button_submit_navy_to_gray"
+          >
+            Send Friend Request
+          </button>
+        );
       case "pending":
         if (personToView.user_id === personToView.friendship_recipient) {
           return <div>Request Pending</div>;
         } else if (personToView.user_id === personToView.friendship_requestor) {
           return (
             <div>
-              <button onClick={acceptFriendRequest}>Accept</button>
-              <button onClick={rejectFriendRequest}>Reject</button>
+              <button
+                onClick={acceptFriendRequest}
+                className="button_submit_navy_to_gray"
+              >
+                Accept
+              </button>
+              <button onClick={rejectFriendRequest} className="button_error">
+                Reject
+              </button>
             </div>
           );
         }
@@ -326,7 +259,7 @@ const CurrentPerson = ({ personToView }) => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="border_radius_15 col_gap padding_15 width_400">
+    <div className="container_with_shadow column width_400">
       <div className="row_with_gap">
         <img
           src="./default_profile_photo.jpg"
@@ -346,6 +279,90 @@ const CurrentPerson = ({ personToView }) => {
   );
 };
 
+const FriendsList = () => {
+  const {
+    setselectedConversationID,
+    setmainTab,
+    currentFriends,
+    loadCurrentFriends,
+    unfriend,
+  } = useContext(MyContext);
+  // eslint-disable-next-line
+  const [loading, setloading] = useState(false);
+
+  const startMessaging = async (personID) => {
+    const req = await fetch(
+      `${process.env.REACT_APP_BACK_END}/start-messaging-from-friends-list`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: sessionStorage.getItem("token"),
+          personID,
+        }),
+      }
+    );
+    const res = await req.json();
+    if (!res.status) {
+      alert(res.msg);
+    } else {
+      setselectedConversationID(res.data[0].id);
+      setmainTab("messages");
+    }
+  };
+
+  useEffect(() => {
+    loadCurrentFriends();
+    // eslint-disable-next-line
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (!currentFriends.length) {
+    return <div>No friends have been found</div>;
+  }
+  return (
+    <div className="row_with_wrap">
+      {currentFriends.map((friend) => {
+        return (
+          <div
+            key={friend.friendship_id}
+            className="container_with_shadow column"
+          >
+            <div className="row_with_gap">
+              <img
+                src="./default_profile_photo.jpg"
+                alt="profile_photo"
+                className="profile_photo"
+              />
+              <h2>{friend.first_name + " " + friend.last_name}</h2>
+            </div>
+            <h3>Username:{" " + friend.username}</h3>
+            <h3>
+              Member Since:{" "}
+              {new Date(friend.account_created).toLocaleDateString()}
+            </h3>
+
+            <div className="row_with_gap">
+              <button
+                onClick={() => startMessaging(friend.user_id)}
+                className="button_submit_navy_to_gray"
+              >
+                Message
+              </button>
+              <button
+                onClick={() => unfriend(friend.friendship_id)}
+                className="button_error"
+              >
+                Delete Friend
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const MyRequests = () => {
   const { mySentFriendRequests, getMySentFriendRequests } =
     useContext(MyContext);
@@ -355,13 +372,21 @@ const MyRequests = () => {
     // eslint-disable-next-line
   }, []);
 
+  if (!mySentFriendRequests.length) {
+    return (
+      <div>
+        <h2>No Pending requests</h2>
+      </div>
+    );
+  }
+
   return (
     <div className="row_with_gap">
       {mySentFriendRequests.map((request) => {
         return (
           <div
             key={request.request_id}
-            className="padding_15 border_radius_15 col_gap"
+            className="container_with_shadow column"
           >
             <div className="row_with_gap">
               <img
@@ -436,13 +461,21 @@ const PendingMyApproval = () => {
     // eslint-disable-next-line
   }, []);
 
+  if (!myPendingApprovalFriendRequests.length) {
+    return (
+      <div>
+        <h2>No Pending requests</h2>
+      </div>
+    );
+  }
+
   return (
     <div className="row_with_gap">
       {myPendingApprovalFriendRequests.map((request) => {
         return (
           <div
             key={request.request_id}
-            className="padding_15 border_radius_15 col_gap"
+            className="container_with_shadow column"
           >
             <div className="row_with_gap">
               <img
@@ -458,11 +491,17 @@ const PendingMyApproval = () => {
               Member Since:{" "}
               {" " + new Date(request.account_created).toLocaleDateString()}
             </p>
-            <div className="row_space_between">
-              <button onClick={() => rejectFriendRequest(request.request_id)}>
+            <div className="row_space_around">
+              <button
+                onClick={() => rejectFriendRequest(request.request_id)}
+                className="button_error"
+              >
                 Reject
               </button>
-              <button onClick={() => acceptFriendRequest(request.request_id)}>
+              <button
+                onClick={() => acceptFriendRequest(request.request_id)}
+                className="button_submit_navy_to_gray"
+              >
                 Accept
               </button>
             </div>

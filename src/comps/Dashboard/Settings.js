@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { notify } from "../../functions/toast";
 
 const Settings = () => {
   const [loading, setloading] = useState(false);
@@ -15,11 +16,18 @@ const Settings = () => {
     });
     const res = await req.json();
     if (!res.status) {
-      console.log(res.msg);
       setloading(false);
+      notify({
+        text: res.msg,
+        error: true,
+      });
     } else {
       setuserInfo(res.data);
       setloading(false);
+      notify({
+        text: `User Data updated successfully`,
+        error: true,
+      });
     }
   };
 
@@ -48,8 +56,11 @@ const Settings = () => {
     );
     const res = await req.json();
     if (!res.status) {
-      console.log(res.msg);
       setloading(false);
+      notify({
+        text: res.msg,
+        error: true,
+      });
     } else {
       setupdateInfoToggle(false);
       setuserInfo(res.data);
@@ -57,7 +68,6 @@ const Settings = () => {
     }
   };
 
-  if (loading) return <div>LOADING...</div>;
   if (!userInfo.length) return <div>ERROR</div>;
 
   return (
@@ -87,12 +97,16 @@ const Settings = () => {
             >
               Cancel
             </button>
-            <button
-              onClick={updateUserInfo}
-              className="button_submit_navy_to_gray"
-            >
-              Update User Info
-            </button>
+            {loading ? (
+              <button className="button_submit_navy_to_gray">Loading...</button>
+            ) : (
+              <button
+                onClick={updateUserInfo}
+                className="button_submit_navy_to_gray"
+              >
+                Update User Info
+              </button>
+            )}
           </div>
         </div>
       ) : (

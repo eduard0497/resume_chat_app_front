@@ -51,14 +51,14 @@ const Conversations = () => {
   };
 
   return (
-    <div className="border_radius_15 padding_15 width_400 col_no_gap">
+    <div className="container_with_shadow width_400 column">
       {conversations.map((conversation) => {
         return (
           <div
             key={conversation.conversation_id}
-            className={`border_radius_15 padding_15 row_with_gap pointer   ${
+            className={`conversation row_with_gap pointer   ${
               selectedConversationID === conversation.conversation_id
-                ? "selected"
+                ? "selected_conversation"
                 : ""
             }`}
             onClick={() =>
@@ -74,7 +74,7 @@ const Conversations = () => {
                 className="profile_photo"
               />
             </div>
-            <div className="col_gap">
+            <div className="column width_100_per">
               <h3>{conversation.first_name + " " + conversation.last_name}</h3>
               {selectedConversationID !== conversation.conversation_id ? (
                 <>
@@ -235,13 +235,13 @@ const SelectedConversation = () => {
 
   if (!selectedConversationID)
     return (
-      <div className="border_radius_15 padding_15 flex_1">
+      <div className="container_with_shadow flex_1">
         <h1>No conversation selected</h1>
       </div>
     );
 
   return (
-    <div className="messaging_container">
+    <div className="container_with_shadow flex_1 messaging_container">
       <div className="messaging_container_messages" ref={messageContainerRef}>
         {messages.map((message) => {
           return (
@@ -276,11 +276,14 @@ const SelectedConversation = () => {
           value={messageToSend}
           onChange={(e) => setmessageToSend(e.target.value)}
           onKeyDown={handleKeyPress}
+          className="message_text_box"
         ></textarea>
         {sendButtonLoading ? (
           <button>Loading...</button>
         ) : (
-          <button onClick={sendMessage}>Send</button>
+          <button onClick={sendMessage} className="button_submit_navy_to_gray">
+            Send
+          </button>
         )}
       </div>
     </div>
