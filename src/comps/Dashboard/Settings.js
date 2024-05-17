@@ -24,10 +24,6 @@ const Settings = () => {
     } else {
       setuserInfo(res.data);
       setloading(false);
-      notify({
-        text: `User Data updated successfully`,
-        error: true,
-      });
     }
   };
 
@@ -65,6 +61,10 @@ const Settings = () => {
       setupdateInfoToggle(false);
       setuserInfo(res.data);
       setloading(false);
+      notify({
+        text: `User Data updated successfully`,
+        error: true,
+      });
     }
   };
 
